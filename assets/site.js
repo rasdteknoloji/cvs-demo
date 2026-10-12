@@ -36,3 +36,9 @@ document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
   lb.addEventListener('click',function(e){if(e.target!==im)close()});
   document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
 })();
+/* ---------- VİDEO ---------- */
+if(document.getElementById('playBtn'))document.getElementById('playBtn').addEventListener('click',function(){
+  var p=document.getElementById('player');
+  p.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/DgcVLyYmFB0?autoplay=1&start=28&rel=0" title="CVS Yakıt Koruma Sistemleri – Nasıl Kurulur?" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
+});
+

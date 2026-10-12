@@ -7,11 +7,9 @@
 <meta name="description" content="Bizi yakından tanıyın: Türkiye'de yakıt hırsızlığına karşı mücadelenin öncülerinden CVS Yakıt Koruma Sistemleri. Birlikte, hep daha iyiye.">
 <meta name="theme-color" content="#0a0a0c">
 <script>try{var t=localStorage.getItem("cvs-theme");if(t)document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/fontawesome.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/brands.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="preload" href="assets/fonts/archivo-var.woff" as="font" type="font/woff" crossorigin>
 <link rel="stylesheet" href="assets/site.css">
 </head>
 <body>
@@ -24,7 +22,7 @@
       <span class="sub">Çavuş Grup Otomotiv Güvencesiyle</span>
     </a>
     <nav>
-      <a href="hakkimizda.html" class="active" aria-current="page">Hakkımızda</a><a href="urunler.html">Ürünlerimiz</a><a href="index.html#montaj">Montaj</a><a href="referanslar.html">Referanslar</a><a href="#iletisim">İletişim</a><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener" class="nav-kat"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15l3 3 3-3"/></svg>E-Katalog</a>
+      <a href="hakkimizda.html" class="active" aria-current="page">Hakkımızda</a><a href="urunler.html">Ürünlerimiz</a><a href="montaj.html">Montaj</a><a href="referanslar.html">Referanslar</a><a href="#iletisim">İletişim</a><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener" class="nav-kat">E-Katalog</a>
     </nav>
     <div class="hdr-actions">
       <button class="theme-btn" id="themeBtn" type="button" aria-label="Gece / gündüz modu">
@@ -37,7 +35,7 @@
   </div>
 </header>
 <div class="mobile-nav" id="mnav">
-  <a href="index.html">Anasayfa</a><a href="hakkimizda.html" class="active" aria-current="page">Hakkımızda</a><a href="urunler.html">Ürünlerimiz</a><a href="index.html#montaj">Montaj</a><a href="referanslar.html">Referanslar</a><a href="#iletisim">İletişim</a><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener" class="nav-kat"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15l3 3 3-3"/></svg>E-Katalog</a>
+  <a href="index.html">Anasayfa</a><a href="hakkimizda.html" class="active" aria-current="page">Hakkımızda</a><a href="urunler.html">Ürünlerimiz</a><a href="montaj.html">Montaj</a><a href="referanslar.html">Referanslar</a><a href="#iletisim">İletişim</a><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener" class="nav-kat">E-Katalog</a>
 </div>
 
 
@@ -50,9 +48,14 @@
       <span class="eyebrow">Hakkımızda</span>
       <h1 class="ph-title">Bizi Yakından <em>Tanıyın!</em></h1>
       <p class="ph-sub">Birlikte, hep daha iyiye. Yirmi yılı aşkın otomotiv deneyimimizi, ağır ticari araçlarda yakıt güvenliğine taşıyoruz.</p>
-      <div class="ph-actions"><a href="urunler.html" class="btn btn-red">Ürünlerimizi inceleyin</a><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener" class="btn btn-line">E-Katalog (PDF)</a></div>
+      <div class="ph-actions"><a href="urunler.html" class="btn btn-red">Ürünlerimizi inceleyin</a><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener" class="btn btn-line">E-Katalog</a></div>
     </div>
-    <div class="ph-img"><img src="assets/img/urun-acili.webp" alt="CVS yakıt koruma gövdesi, açılı görünüm" width="1205" height="1288"></div>
+    <div class="viewer" id="viewer3d">
+      <canvas aria-label="CVS yakıt koruma gövdesi, döndürülebilir 3D model"></canvas>
+      <img class="v-fallback" src="assets/img/urun-acili.webp" alt="CVS yakıt koruma gövdesi" width="1205" height="1288">
+      <span class="v-hint">Sürükleyin, her açıdan inceleyin</span>
+      <div class="v-ui"><button type="button" data-v="cap">Kilitli kapağı tak</button><button type="button" data-v="spin">Durdur</button><button type="button" data-v="reset">Sıfırla</button></div>
+    </div>
   </div>
 </section>
 
@@ -97,7 +100,7 @@
 <section id="kokenimiz" style="background:var(--bg2)">
   <div class="wrap">
     <div class="story">
-      <div class="media"><img class="zoom" src="assets/img/urun-kapakli.webp" alt="CVS kilitli kapaklı yakıt koruma sistemi" width="1368" height="2000" data-cap="CVS kilitli kapaklı depo koruma sistemi"></div>
+      <div class="media hero-prod"><span class="bgword" aria-hidden="true">CVS</span><img class="zoom" src="assets/img/urun-kapakli.png" alt="CVS kilitli kapaklı yakıt koruma sistemi" width="889" height="1300" data-cap="CVS kilitli kapaklı depo koruma sistemi"></div>
       <div>
         <span class="eyebrow">Kökenimiz</span>
         <h2>Yirmi yılı aşkın otomotiv deneyimi, şimdi yakıt güvenliğinde.</h2>
@@ -121,7 +124,6 @@
       <div><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg></span><h3>Zamanında</h3><p>Siparişleriniz zamanında, emniyetli ve kaliteden ödün vermeden teslim.</p></div>
       <div><span class="ic"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M9 12l2 2 4-4"/></svg></span><h3>Yerli ve milli</h3><p>Ürünlerimiz yerli ve milli imkanlarla geliştirilir.</p></div>
     </div>
-    <div class="support" style="margin-top:40px"><span>Destekleyen</span><img src="assets/img/kosgeb.webp" alt="KOSGEB" width="405" height="261"></div>
   </div>
 </section>
 
@@ -133,8 +135,8 @@
       <div>
         <span class="eyebrow">E-Katalog</span>
         <h2>Tüm ürün gruplarımız tek katalogda.</h2>
-        <p>Tır ve kamyon, otobüs ve iş makinesi koruma sistemleri, mühürlü montaj kiti ve referanslarımız. Kataloğu indirin, ekibinizle paylaşın.</p>
-        <div class="ph-actions" style="margin-top:0"><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" class="btn btn-red" download><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 12v6M9 15l3 3 3-3"/></svg>Kataloğu indir</a><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener" class="btn btn-line">Tarayıcıda aç</a></div>
+        <p>Tır ve kamyon, otobüs ve iş makinesi koruma sistemleri, mühürlü montaj kiti ve referanslarımız. Tek tıkla açın, ekibinizle paylaşın.</p>
+        <div class="ph-actions" style="margin-top:0"><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener" class="btn btn-red">E-Katalog</a></div>
         <div class="kat-meta">PDF · 8 sayfa · 5,7 MB</div>
       </div>
     </div>
@@ -178,7 +180,7 @@
         <a href="mailto:koruma@cvsyakitkoruma.com">koruma@cvsyakitkoruma.com</a>
       </div>
       <div><h4>Ürünlerimiz</h4><a href="urunler.html#tir">Tır ve kamyon</a><a href="urunler.html#otobus">Otobüs, midibüs</a><a href="urunler.html#is-makinesi">İş makineleri</a><a href="urunler.html#montaj-kiti">Mühürlü montaj kiti</a><a href="index.html#araclar">Forklift, jeneratör</a></div>
-      <div><h4>Kurumsal</h4><a href="hakkimizda.html">Hakkımızda</a><a href="hakkimizda.html#kokenimiz">Kalite politikamız</a><a href="referanslar.html">Referanslar</a><a href="index.html#montaj">Montaj videoları</a><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener">E-Katalog (PDF)</a></div>
+      <div><h4>Kurumsal</h4><a href="hakkimizda.html">Hakkımızda</a><a href="hakkimizda.html#kokenimiz">Kalite politikamız</a><a href="referanslar.html">Referanslar</a><a href="montaj.html">Montaj ve süreç</a><a href="katalog/CVS-Yakit-Koruma-Katalog.pdf" target="_blank" rel="noopener">E-Katalog (PDF)</a></div>
       <div><h4>Takip edin</h4><a href="https://www.youtube.com/@CVSYaktKorumaSistemleri-rp9mc" target="_blank" rel="noopener">YouTube</a><a href="#">Instagram</a><a href="#">Facebook</a><a href="https://wa.me/905323978397" target="_blank" rel="noopener">WhatsApp</a></div>
     </div>
     <div class="bottom"><span>© 2026 CVS Yakıt Koruma Sistemleri. Tüm hakları saklıdır.</span><span><a href="#" style="display:inline;padding:0 12px 0 0">KVKK</a><a href="#" style="display:inline;padding:0 12px">Gizlilik</a><a href="#" style="display:inline;padding:0 0 0 12px">Çerez Politikası</a></span></div>
@@ -188,5 +190,7 @@
 <a class="wa" href="https://wa.me/905323978397" target="_blank" rel="noopener" aria-label="WhatsApp ile yazın"><span class="wa-tip">WhatsApp'tan yazın</span><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
 
 <script src="assets/site.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="assets/viewer3d.js"></script>
 </body>
 </html>
