@@ -296,7 +296,7 @@ footer .bottom{margin-top:44px;padding-top:22px;border-top:1px solid var(--line)
   <div class="brand"><span class="logo lg onDark"><span class="row"><span class="cvs">CVS</span><span class="txt"><span>Yakıt Koruma</span><span>Sistemleri</span></span></span><span class="sub">Çavuş Grup Otomotiv Güvencesiyle</span></span></div>
   <div class="lock"></div>
   <div class="cap">
-    <div class="t">Depo kilitlendi. Yakıtınız artık sizin.</div>
+    <div class="t">Yakıtınız güvende.</div>
     <div class="s">Yerli üretim · 25 yıl · %100 koruma</div>
   </div>
   <button class="skip" type="button" id="skipIntro">ATLA →</button>
@@ -638,7 +638,7 @@ document.getElementById('playBtn').addEventListener('click',function(){
 (function(){
   var intro=document.getElementById('intro');
   var stepEl=document.getElementById('introStep');
-  var done=false, TOTAL=7.2;
+  var done=false, TOTAL=6.9;
   function finish(){ if(done)return; done=true; intro.classList.add('hide'); window.__startSlider(); setTimeout(function(){intro.remove()},1000); }
   document.getElementById('skipIntro').addEventListener('click',finish);
   intro.querySelector('.bar').style.transition='width '+TOTAL+'s linear';
@@ -705,9 +705,9 @@ document.getElementById('playBtn').addEventListener('click',function(){
   });
   var NX=.2,NZ=1.55;
   // depo ağzı
-  ringBand(.31,.43,0,.17,alu,scene).position.set(NX,0,NZ);
-  var lip=new THREE.Mesh(new THREE.TorusGeometry(.41,.022,16,72),alu);lip.rotation.x=Math.PI/2;lip.position.set(NX,.17,NZ);scene.add(lip);
-  var hole=new THREE.Mesh(new THREE.CircleGeometry(.31,64),new THREE.MeshBasicMaterial({color:0x030304}));hole.rotation.x=-Math.PI/2;hole.position.set(NX,.004,NZ);scene.add(hole);
+  ringBand(.36,.49,0,.17,alu,scene).position.set(NX,0,NZ);
+  var lip=new THREE.Mesh(new THREE.TorusGeometry(.47,.022,16,72),alu);lip.rotation.x=Math.PI/2;lip.position.set(NX,.17,NZ);scene.add(lip);
+  var hole=new THREE.Mesh(new THREE.CircleGeometry(.36,64),new THREE.MeshBasicMaterial({color:0x030304}));hole.rotation.x=-Math.PI/2;hole.position.set(NX,.004,NZ);scene.add(hole);
   // depo üstü detaylar: sensör kapağı + uyarı etiketi
   var sensor=new THREE.Mesh(new THREE.CylinderGeometry(.2,.22,.14,40),black);sensor.position.set(-.55,.07,1.05);scene.add(sensor);
   var sticker=new THREE.Mesh(new THREE.PlaneGeometry(.62,.34),new THREE.MeshStandardMaterial({roughness:.5,map:tex(256,140,function(g,w,h){g.fillStyle='#f4c21b';g.fillRect(0,0,w,h);g.fillStyle='#111';g.beginPath();g.moveTo(34,104);g.lineTo(64,40);g.lineTo(94,104);g.closePath();g.fill();g.fillStyle='#f4c21b';g.font='bold 44px Arial';g.fillText('!',57,98);g.fillStyle='#111';for(var i=0;i<5;i++)g.fillRect(112,34+i*18,120-i*14,7)},true)}));
@@ -717,55 +717,61 @@ document.getElementById('playBtn').addEventListener('click',function(){
   var ground=new THREE.Mesh(new THREE.PlaneGeometry(9,12),new THREE.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false,opacity:.7}));ground.rotation.x=-Math.PI/2;ground.position.y=-TH-2*BEV-.05;scene.add(ground);
   var contact=new THREE.Mesh(new THREE.PlaneGeometry(1.5,1.5),new THREE.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false,opacity:0}));contact.rotation.x=-Math.PI/2;contact.position.set(NX,.006,NZ);scene.add(contact);
 
-  /* ---- CVS YAKIT KORUMA GÖVDESİ ---- */
-  var RC=.30,HC=1.5;
+  /* ---- CVS YAKIT KORUMA (fotoğraftaki gerçek ürün: kilitli kapak + etiketli bilezik + yarıklı kafes) ---- */
+  // Yerel koordinat: 0 = depo ağzına oturan alt dudak. Yukarı: bilezik, kapak, anahtar. Aşağı: kafes.
+  var RC=.35,HC=.95;
   var dev=new THREE.Group(); scene.add(dev);
-  // yarıklı kafes: alfa haritası ile gerçek boşluklar
+  // yarıklı kafes (yatay, şaşırtmalı geniş yarıklar)
   var slotW=1024,slotH=Math.round(1024*HC/(2*Math.PI*RC));
   var slots=tex(slotW,slotH,function(g,w,h){
     g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#000';
-    var cols=8,rows=6,top=h*.07,bot=h*.06,rowH=(h-top-bot)/rows,colW=w/cols;
+    var cols=6,rows=5,top=h*.07,bot=h*.13,rowH=(h-top-bot)/rows,colW=w/cols;
     for(var r=0;r<rows;r++)for(var c=0;c<cols;c++){
-      var sw=colW*.72,sh=rowH*.5,x=c*colW+(r%2?colW/2:0)+(colW-sw)/2,y=top+r*rowH+(rowH-sh)/2;
+      var sw=colW*.74,sh=rowH*.4,x=c*colW+(r%2?colW/2:0)+(colW-sw)/2,y=top+r*rowH+(rowH-sh)/2;
       [x,x-w].forEach(function(xx){rr(g,xx,y,sw,sh,sh/2);g.fill()});
     }
   });
-  var cageMat=new THREE.MeshStandardMaterial({color:0xf6f7f9,map:brushed,alphaMap:slots,alphaTest:.5,metalness:.9,roughness:.3});
-  var cage=new THREE.Mesh(new THREE.CylinderGeometry(RC,RC,HC,96,1,true),cageMat);cage.position.y=-HC/2;dev.add(cage);
-  var cageIn=new THREE.Mesh(new THREE.CylinderGeometry(RC-.006,RC-.006,HC,96,1,true),new THREE.MeshStandardMaterial({color:0x24272d,metalness:.6,roughness:.6,side:THREE.BackSide}));cageIn.position.y=-HC/2;dev.add(cageIn);
-  // delikli taban
+  var cage=new THREE.Mesh(new THREE.CylinderGeometry(RC,RC,HC,96,1,true),new THREE.MeshStandardMaterial({color:0xf6f7f9,map:brushed,alphaMap:slots,alphaTest:.5,metalness:.9,roughness:.3}));
+  cage.position.y=-HC/2;dev.add(cage);
+  var cageIn=new THREE.Mesh(new THREE.CylinderGeometry(RC-.006,RC-.006,HC,96,1,true),new THREE.MeshStandardMaterial({color:0x24272d,metalness:.6,roughness:.6,side:THREE.BackSide}));
+  cageIn.position.y=-HC/2;dev.add(cageIn);
   var holes=tex(512,512,function(g,w,h){g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#000';var R=w/2;for(var y=-R;y<R;y+=40)for(var x=-R;x<R;x+=40){var xx=x+((y/40|0)%2?20:0);if(Math.hypot(xx,y)<R*.78){g.beginPath();g.arc(R+xx,R+y,11,0,7);g.fill()}}});
   var base=new THREE.Mesh(new THREE.CircleGeometry(RC,64),new THREE.MeshStandardMaterial({color:0xe6e9ee,alphaMap:holes,alphaTest:.5,metalness:1,roughness:.3,side:THREE.DoubleSide}));base.rotation.x=Math.PI/2;base.position.y=-HC;dev.add(base);
   var baseRim=new THREE.Mesh(new THREE.TorusGeometry(RC,.014,10,72),alu);baseRim.rotation.x=Math.PI/2;baseRim.position.y=-HC;dev.add(baseRim);
-  // flanş + etiket bandı
-  ringBand(.285,.40,0,.04,alu,dev);
-  ringBand(.285,.372,.04,.22,alu,dev);
-  ringBand(.285,.392,.22,.26,alu,dev);
-  var labelTex=tex(2048,156,function(g,w,h){
-    g.fillStyle='#f5f6f8';g.fillRect(0,0,w,h);g.fillStyle='#9aa0aa';g.fillRect(0,0,w,5);g.fillRect(0,h-5,w,5);
+  // oturma dudağı + etiketli bilezik
+  ringBand(.3,.44,0,.03,alu,dev);
+  ringBand(.3,.405,.03,.235,alu,dev);
+  var labelTex=tex(2048,150,function(g,w,h){
+    g.fillStyle='#f5f6f8';g.fillRect(0,0,w,h);
     var seg=w/2, F="Arial, Helvetica, 'Liberation Sans', sans-serif";
-    function widths(sc){g.font='600 '+64*sc+'px '+F;var a=g.measureText('www.').width,c=g.measureText('yakitkoruma.com').width;g.font='900 '+96*sc+'px '+F;return [a,g.measureText('CVS').width+4*sc,c]}
+    function widths(sc){g.font='600 '+62*sc+'px '+F;var a=g.measureText('www.').width,c=g.measureText('yakitkoruma.com').width;g.font='900 '+94*sc+'px '+F;return [a,g.measureText('CVS').width+4*sc,c]}
     var sc=1,ws=widths(1),tot=ws[0]+ws[1]+ws[2];if(tot>seg*.86){sc=seg*.86/tot;ws=widths(sc);tot=ws[0]+ws[1]+ws[2]}
     for(var k=0;k<2;k++){
-      var x=k*seg+(seg-tot)/2, y=h*.68;
-      g.font='600 '+64*sc+'px '+F;g.fillStyle='#2b2e8c';g.fillText('www.',x,y);x+=ws[0];
-      g.font='900 '+96*sc+'px '+F;g.fillStyle='#d7232f';g.fillText('CVS',x,y+8*sc);x+=ws[1];
-      g.font='600 '+64*sc+'px '+F;g.fillStyle='#2b2e8c';g.fillText('yakitkoruma.com',x,y);
+      var x=k*seg+(seg-tot)/2, y=h*.7;
+      g.font='600 '+62*sc+'px '+F;g.fillStyle='#2b2e8c';g.fillText('www.',x,y);x+=ws[0];
+      g.font='900 '+94*sc+'px '+F;g.fillStyle='#d7232f';g.fillText('CVS',x,y+8*sc);x+=ws[1];
+      g.font='600 '+62*sc+'px '+F;g.fillStyle='#2b2e8c';g.fillText('yakitkoruma.com',x,y);
     }
   },true);
-  var label=new THREE.Mesh(new THREE.CylinderGeometry(.374,.374,.17,96,1,true),new THREE.MeshStandardMaterial({map:labelTex,roughness:.42,metalness:0}));label.position.y=.13;dev.add(label);
-
-  /* ---- DEPO KAPAĞI (siyah, tırtıklı, kilitli) ---- */
-  var cap=new THREE.Group(); scene.add(cap);
-  var capBody=new THREE.Mesh(new THREE.CylinderGeometry(.41,.44,.2,72),rubber);capBody.position.y=.1;cap.add(capBody);
-  var capTop=new THREE.Mesh(new THREE.CylinderGeometry(.33,.41,.07,72),rubber);capTop.position.y=.235;cap.add(capTop);
-  for(var i=0;i<44;i++){var rib=new THREE.Mesh(new THREE.BoxGeometry(.03,.17,.028),rubber);var a=i/44*Math.PI*2;rib.position.set(Math.cos(a)*.437,.1,Math.sin(a)*.437);rib.lookAt(0,.1,0);cap.add(rib)}
-  var lockCyl=new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.05,40),alu);lockCyl.position.y=.29;cap.add(lockCyl);
-  var keySlot=new THREE.Mesh(new THREE.BoxGeometry(.09,.012,.022),black);keySlot.position.y=.316;cap.add(keySlot);
+  var label=new THREE.Mesh(new THREE.CylinderGeometry(.407,.407,.13,96,1,true),new THREE.MeshStandardMaterial({map:labelTex,roughness:.42,metalness:0}));label.position.y=.133;dev.add(label);
+  // siyah kilitli kapak (bileziğe sabit, yumuşak kubbe, ince tırtıklı kenar)
+  var CAP0=.235;
+  var ribs=tex(1024,64,function(g,w,h){g.fillStyle='#808080';g.fillRect(0,0,w,h);var y0=Math.round(h*(1-.36)),y1=Math.round(h*(1-.14));for(var x=0;x<w;x+=16){g.fillStyle='#262626';g.fillRect(x,y0,7,y1-y0)}});
+  var capProfile=[[0.30,0],[0.455,0],[0.468,.015],[0.468,.13],[0.455,.165],[0.42,.19],[0.33,.208],[0.12,.215],[0.001,.215]].map(function(p){return new THREE.Vector2(p[0],p[1])});
+  var capMat=new THREE.MeshStandardMaterial({color:0x060607,roughness:.32,metalness:.05,envMapIntensity:.28,bumpMap:ribs,bumpScale:.01});
+  var capMesh=new THREE.Mesh(new THREE.LatheGeometry(capProfile,96),capMat);capMesh.position.y=CAP0;dev.add(capMesh);
+  var boss=new THREE.Mesh(new THREE.CylinderGeometry(.088,.095,.045,48),new THREE.MeshStandardMaterial({color:0xd9dde3,metalness:1,roughness:.18}));boss.position.y=CAP0+.237;dev.add(boss);
+  var face=new THREE.Mesh(new THREE.CircleGeometry(.07,40),new THREE.MeshStandardMaterial({color:0xb9bec6,metalness:1,roughness:.25}));face.rotation.x=-Math.PI/2;face.position.y=CAP0+.2605;dev.add(face);
+  // anahtar: çelik dil + siyah plastik baş (delikli)
+  var keyG=new THREE.Group();keyG.position.y=CAP0+.26;dev.add(keyG);
+  var blade=new THREE.Mesh(new THREE.BoxGeometry(.05,.07,.012),new THREE.MeshStandardMaterial({color:0xcfd3d9,metalness:1,roughness:.2}));blade.position.y=.035;keyG.add(blade);
+  var kh=new THREE.Shape();(function(){var w=.15,h=.16,r=.05,x=-w/2,y=0;kh.moveTo(x+r,y);kh.lineTo(x+w-r,y);kh.quadraticCurveTo(x+w,y,x+w,y+r);kh.lineTo(x+w,y+h-r);kh.quadraticCurveTo(x+w,y+h,x+w-r,y+h);kh.lineTo(x+r,y+h);kh.quadraticCurveTo(x,y+h,x,y+h-r);kh.lineTo(x,y+r);kh.quadraticCurveTo(x,y,x+r,y);var hp=new THREE.Path();hp.absarc(0,h-.042,.019,0,Math.PI*2,true);kh.holes.push(hp)})();
+  var headGeo=new THREE.ExtrudeGeometry(kh,{depth:.03,bevelEnabled:true,bevelThickness:.008,bevelSize:.008,bevelSegments:3,curveSegments:16});headGeo.translate(0,0,-.015);
+  headGeo.scale(1.15,1.15,1);var head=new THREE.Mesh(headGeo,new THREE.MeshStandardMaterial({color:0x050506,roughness:.35,metalness:.05,envMapIntensity:.3}));head.position.y=.065;keyG.add(head);
 
   /* ---- ZAMAN ÇİZELGESİ ---- */
-  var SEAT=.17, CAPSEAT=SEAT+.26;
-  var STEPS=[[1.4,'<b>01</b>Paslanmaz çelik kafes gövde'],[3.1,'<b>02</b>Depo ağzına yerleşir'],[4.75,'<b>03</b>Kapak kilitlenir, anahtar sizde']];
+  var SEAT=.17;
+  var STEPS=[[1.4,'<b>01</b>Kilitli kapak, paslanmaz çelik kafes'],[3.1,'<b>02</b>Depo ağzına yerleşir'],[4.6,'<b>03</b>Anahtar çevrilir, depo kilitlenir']];
   var stepI=-1;
   function setStep(t){var n=-1;for(var i=0;i<STEPS.length;i++)if(t>=STEPS[i][0])n=i;if(n!==stepI){stepI=n;stepEl.classList.remove('on');if(n>=0)setTimeout(function(){stepEl.innerHTML=STEPS[n][1];stepEl.classList.add('on')},180)}}
   var tgt=new THREE.Vector3(), START=performance.now(), locked=false, sceneOn=false;
@@ -774,30 +780,28 @@ document.getElementById('playBtn').addEventListener('click',function(){
     var t=(performance.now()-START)/1000;
     if(t>1.25&&!sceneOn){sceneOn=true;intro.classList.add('scene')}
     setStep(t);
-    // gövde: havada tanıtım → depo ağzına iniş → oturma
+    // gövde: havada tanıtım → dikleşme → düz iniş → oturma
     var alignK=ease((t-3.0)/.55), seatK=ease((t-3.55)/.9), hover=1-alignK;
-    var bob=Math.sin(t*1.6)*.05*hover;
-    var y=lerp(1.75,SEAT,seatK)+bob;
-    if(t>4.45){var b=t-4.45;y=SEAT+Math.max(0,Math.sin(b*28))*.018*Math.exp(-b*7)}
+    var y=lerp(1.45,SEAT,seatK)+Math.sin(t*1.6)*.05*hover;
+    if(t>4.45){var b=t-4.45;y=SEAT+Math.max(0,Math.sin(b*28))*.016*Math.exp(-b*7)}
     dev.position.set(NX,y,NZ);
-    dev.rotation.y=-.6+t*1.05*(1-seatK*.9)+seatK*.4;
-    dev.rotation.z=.32*hover; dev.rotation.x=-.12*hover;
+    dev.rotation.y=-.9+t*1.05*(1-seatK*.9)+seatK*.55;
+    dev.rotation.z=.3*hover; dev.rotation.x=-.12*hover;
     contact.material.opacity=.55*seatK;
-    // kapak: yukarıdan iner ve vidalanır
-    var ck=easeOut((t-4.6)/1.2);
-    cap.visible=t>4.45;
-    cap.position.set(NX,lerp(CAPSEAT+.9,CAPSEAT,ck),NZ);
-    cap.rotation.y=(1-ck)*Math.PI*5;
-    if(t>5.85&&!locked){locked=true;intro.classList.add('locked');intro.classList.add('phase2');key.intensity=3.2}
+    // anahtar çevrilir (90°, sonunda küçük tık)
+    var kk=ease((t-4.75)/.6);
+    if(t>5.4&&!locked){locked=true;intro.classList.add('locked');intro.classList.add('phase2');key.intensity=3.2}
     key.intensity+=(1.5-key.intensity)*.06;
-    // kamera: yakın plan ürün → depo geneli
-    var camK=ease((t-2.7)/2.1), orbit=.18*Math.sin(t*.35);
-    tgt.set(NX,lerp(1.2,.32,camK),NZ);
-    var m=narrow?1.45:1;
-    var ox=lerp(2.2,2.7,camK)*m, oy=lerp(.35,1.75,camK)*m, oz=lerp(3.4,3.9,camK)*m;
+    // kamera: ürüne yakın → depo geneli → anahtara yakın
+    var k1=ease((t-2.7)/2.0), k2=ease((t-4.4)/.85), orbit=.18*Math.sin(t*.35), m=narrow?1.45:1;
+    var ty=lerp(y+.02,.42,k2);
+    var ox=lerp(lerp(2.0,2.7,k1),1.35,k2)*m, oy=lerp(lerp(.35,1.75,k1),.95,k2)*m, oz=lerp(lerp(3.0,3.9,k1),2.0,k2)*m;
+    tgt.set(NX,ty,NZ);
     var ca=Math.cos(orbit), sa=Math.sin(orbit);
     cam.position.set(tgt.x+ox*ca-oz*sa, tgt.y+oy, tgt.z+ox*sa+oz*ca);
     cam.lookAt(tgt);
+    var camAz=Math.atan2(cam.position.x-NX,cam.position.z-NZ);
+    keyG.rotation.y=camAz-dev.rotation.y-Math.PI/4+Math.PI/2*kk + (t>5.35?Math.sin((t-5.35)*30)*.03*Math.exp(-(t-5.35)*9):0);
     renderer.render(scene,cam);
     if(t>=TOTAL){finish();return}
     requestAnimationFrame(frame);
