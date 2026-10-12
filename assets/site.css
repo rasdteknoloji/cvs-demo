@@ -457,7 +457,7 @@ nav a{font-family:var(--fb);font-weight:500}
 .sec-head p{grid-column:2;max-width:46ch;font-size:16.5px}
 
 /* Neden CVS / Değerler: kartlar yerine paralel çizgili satırlar */
-.why{display:block;counter-reset:w;padding-top:18px;background:var(--hatch) top left/100% 9px no-repeat}
+.why{display:block;counter-reset:w}
 .why>div{counter-increment:w;display:grid;grid-template-columns:84px minmax(0,1fr) minmax(0,1.2fr) 52px;align-items:center;gap:28px;padding:30px 0;background:none;border:0;border-radius:0;border-bottom:1px solid var(--line);position:relative}
 .why>div:first-child{border-top:2px solid var(--text)}
 .why>div>*{grid-row:1}
@@ -471,7 +471,6 @@ nav a{font-family:var(--fb);font-weight:500}
 
 /* Rakamlar: kart yerine künye plakası */
 .statcards{gap:0;border-top:2px solid var(--text);border-bottom:1px solid var(--line);position:relative}
-.statcards::before{content:"";position:absolute;left:0;right:0;top:-13px;height:9px;background:var(--hatch)}
 .statcard{background:none;border:0;border-radius:0;border-left:1px solid var(--line);padding:26px 26px 30px;gap:8px;overflow:visible}
 .statcard:first-child{border-left:0;padding-left:0}
 .statcard::before{display:none}
@@ -530,14 +529,12 @@ nav a{font-family:var(--fb);font-weight:500}
 /* Anasayfa montaj bandı */
 .band-sec{padding:40px 0 110px}
 .band{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr) auto;gap:32px;align-items:center;padding:34px 0;border-top:2px solid var(--text);border-bottom:1px solid var(--line);position:relative}
-.band::before{content:"";position:absolute;left:0;right:0;top:-13px;height:9px;background:var(--hatch)}
 .band b{font-family:var(--fd);font-stretch:118%;font-weight:800;font-size:clamp(24px,2.8vw,38px);letter-spacing:-.015em;line-height:1.05}
 .band span{color:var(--muted);font-size:16px}
 .band i{font-style:normal;font-family:var(--fm);font-weight:600;font-size:13px;letter-spacing:.06em;display:inline-flex;align-items:center;gap:12px;padding:14px 20px;border-radius:999px;background:var(--red);color:#fff;white-space:nowrap;transition:transform .2s}
 .band:hover i{transform:translateX(4px)}
 .mfig{position:relative;margin:0}
-.mfig img{width:100%;border-radius:6px;aspect-ratio:16/10;object-fit:cover}
-.mfig::before{content:"";position:absolute;left:-14px;top:-14px;width:46%;height:46%;background:var(--hatch);z-index:-1}
+.mfig img{width:100%;border-radius:10px;aspect-ratio:16/10;object-fit:cover;box-shadow:0 30px 70px rgba(0,0,0,.35)}
 .mfig figcaption{font-family:var(--fm);font-size:12px;color:var(--muted);margin-top:12px;letter-spacing:.04em}
 
 @media (max-width:960px){
@@ -560,3 +557,10 @@ html[data-theme="light"]{color-scheme:light}
 html[data-theme="light"] .form select option{background:#ffffff;color:#1d1d1f}
 .form select option:checked{background:#d7232f;color:#fff}
 @media (max-width:600px){.viewer{aspect-ratio:1/1.1}.v-ui{gap:6px;flex-wrap:nowrap}.v-ui button{font-size:11px;padding:8px 10px;white-space:nowrap}.v-hint{font-size:11px}}
+
+/* Menü: anasayfa (ev) simgesi */
+nav a.nav-home{display:inline-grid;place-items:center;width:38px;height:38px;padding:0;border-radius:50%;border:1px solid var(--line);opacity:1;transition:border-color .2s,background .2s,color .2s}
+nav a.nav-home::after{display:none}
+nav a.nav-home:hover{border-color:var(--red);color:var(--red2)}
+nav a.nav-home.active{background:var(--red);border-color:var(--red);color:#fff}
+nav{align-items:center}
