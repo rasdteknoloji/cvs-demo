@@ -64,3 +64,20 @@ if(document.getElementById('playBtn'))document.getElementById('playBtn').addEven
       .then(function(r){done(r.ok)}).catch(function(){done(false)});
   });
 })();
+
+/* ---------- YOUTUBE: görsele tıklayınca yerinde oynat ---------- */
+(function(){
+  document.querySelectorAll('.yt[data-yt]').forEach(function(el){
+    function play(){
+      if(el.classList.contains('on')) return;
+      var id=el.getAttribute('data-yt'), st=el.getAttribute('data-start')||0;
+      var f=document.createElement('iframe');
+      f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1&start='+st;
+      f.title='CVS Yakıt Koruma Sistemleri – Nasıl Kurulur?';
+      f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'; f.allowFullscreen=true;
+      el.classList.add('on'); el.appendChild(f);
+    }
+    el.addEventListener('click',play);
+    el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();play()}});
+  });
+})();
