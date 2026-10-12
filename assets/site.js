@@ -1,0 +1,38 @@
+/* ---------- TEMA ---------- */
+(function(){
+  var saved=null; try{saved=localStorage.getItem('cvs-theme')}catch(e){}
+  if(saved) document.documentElement.setAttribute('data-theme',saved);
+  document.getElementById('themeBtn').addEventListener('click',function(){
+    var cur=document.documentElement.getAttribute('data-theme')==='light'?'dark':'light';
+    document.documentElement.setAttribute('data-theme',cur);
+    try{localStorage.setItem('cvs-theme',cur)}catch(e){}
+  });
+})();
+
+/* ---------- HEADER / MENÜ ---------- */
+var hdr=document.getElementById('hdr');
+window.addEventListener('scroll',function(){hdr.classList.toggle('scrolled',window.scrollY>40)},{passive:true});
+var mnav=document.getElementById('mnav');
+document.getElementById('burger').addEventListener('click',function(){mnav.classList.toggle('open')});
+mnav.querySelectorAll('a').forEach(function(a){a.addEventListener('click',function(){mnav.classList.remove('open')})});
+
+/* ---------- REVEAL ---------- */
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.12});
+document.querySelectorAll('.reveal').forEach(function(el){io.observe(el)});
+
+
+/* ---------- GÖRSEL BÜYÜTME ---------- */
+(function(){
+  var z=document.querySelectorAll('.zoom'); if(!z.length) return;
+  var lb=document.createElement('div'); lb.className='lightbox'; lb.setAttribute('role','dialog'); lb.setAttribute('aria-modal','true');
+  lb.innerHTML='<img alt=""><div class="cap"></div><button type="button" aria-label="Kapat">&times;</button>';
+  document.body.appendChild(lb);
+  var im=lb.querySelector('img'), cap=lb.querySelector('.cap');
+  function close(){lb.classList.remove('open');document.body.style.overflow=''}
+  z.forEach(function(el){el.addEventListener('click',function(){
+    im.src=el.currentSrc||el.src; im.alt=el.alt; cap.textContent=el.getAttribute('data-cap')||el.alt||'';
+    lb.classList.add('open'); document.body.style.overflow='hidden';
+  })});
+  lb.addEventListener('click',function(e){if(e.target!==im)close()});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape')close()});
+})();
