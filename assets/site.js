@@ -42,3 +42,25 @@ if(document.getElementById('playBtn'))document.getElementById('playBtn').addEven
   p.innerHTML='<iframe src="https://www.youtube-nocookie.com/embed/DgcVLyYmFB0?autoplay=1&start=28&rel=0" title="CVS Yakıt Koruma Sistemleri – Nasıl Kurulur?" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>';
 });
 
+/* ---------- TEKLİF FORMU: Netlify Forms, olmazsa WhatsApp ---------- */
+(function(){
+  var f=document.getElementById('teklifForm'); if(!f) return;
+  var btn=f.querySelector('button[type=submit]'), msg=f.querySelector('.form-msg'), label=btn.textContent;
+  function esc(t){return String(t).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+  f.addEventListener('submit',function(e){
+    e.preventDefault();
+    if(f.web&&f.web.value) return;
+    var fd=new FormData(f), ad=(fd.get('ad')||'').trim();
+    btn.disabled=true; btn.textContent='Gönderiliyor…'; msg.className='form-msg'; msg.innerHTML='';
+    var txt='Merhaba, CVS yakıt koruma için teklif almak istiyorum.\nAd Soyad: '+ad+'\nFirma: '+(fd.get('firma')||'-')+'\nAraç tipi: '+fd.get('arac_tipi')+'\nAraç sayısı: '+(fd.get('arac_sayisi')||'-')+'\nTelefon: '+fd.get('telefon');
+    var wa='https://wa.me/905323978397?text='+encodeURIComponent(txt);
+    function done(ok){
+      btn.disabled=false; btn.textContent=label;
+      if(ok){msg.className='form-msg ok';msg.innerHTML='<b>Teşekkürler'+(ad?' '+esc(ad.split(' ')[0]):'')+'!</b> Talebiniz bize ulaştı. En kısa sürede '+esc(fd.get('telefon'))+' numarasından size dönüş yapacağız.';f.reset()}
+      else{msg.className='form-msg err';msg.innerHTML='Şu an form bağlantısı kurulamadı. Talebinizi tek tıkla WhatsApp\'tan iletebilirsiniz.<br><a href="'+wa+'" target="_blank" rel="noopener">WhatsApp ile gönder →</a>'}
+      msg.scrollIntoView({block:'nearest',behavior:'smooth'});
+    }
+    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(fd).toString()})
+      .then(function(r){done(r.ok)}).catch(function(){done(false)});
+  });
+})();
