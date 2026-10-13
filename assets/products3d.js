@@ -101,8 +101,8 @@
       });
     }
     function baseHoles(){return tex(512,512,function(g,w,h){g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#000';var R=w/2;for(var k=0;k<12;k++){var a=k/12*Math.PI*2;g.beginPath();g.arc(R+Math.cos(a)*R*.66,R+Math.sin(a)*R*.66,R*.085,0,7);g.fill()}for(var k2=0;k2<7;k2++){var a2=k2/7*Math.PI*2;g.beginPath();g.arc(R+Math.cos(a2)*R*.33,R+Math.sin(a2)*R*.33,R*.075,0,7);g.fill()}g.beginPath();g.arc(R,R,R*.07,0,7);g.fill()})}
-    function threads(r,y0,y1,parent,outer){ /* diş halkaları */
-      for(var y=y0;y<y1;y+=.024){var t=new THREE.Mesh(new THREE.TorusGeometry(r,.007,8,96),M.matte);t.rotation.x=Math.PI/2;t.position.y=y;parent.add(t)}
+    function threads(r,y0,y1,parent,pitch,tube){ /* diş halkaları */
+      for(var y=y0;y<y1;y+=(pitch||.024)){var t=new THREE.Mesh(new THREE.TorusGeometry(r,tube||.007,8,96),M.matte);t.rotation.x=Math.PI/2;t.position.y=y;parent.add(t)}
     }
 
 
@@ -114,7 +114,7 @@
         for(i=0;i<P.rows;i++)for(j=0;j<P.per;j++)L.push({t:'lens',x:(j+.5)/P.per*C+(P.shift||0)*C*(i%2),y:y0+pitch*(i+.5),w:P.arc*C,h:P.hh,a:P.tilt||0});
       }else if(P.k==='punch'){ /* sac delme: köprüleri şaşırtmalı dikdörtgen pencereler */
         var pitch2=(y1-y0)/P.rows,ww=C/P.per-P.bridge;
-        for(i=0;i<P.rows;i++)for(j=0;j<P.per;j++)L.push({t:'rect',x:(j+(i%2?.5:0))*C/P.per+C/P.per/2,y:y0+pitch2*(i+.5),w:ww,h:P.hh,r:P.rad||.004,a:0});
+        var sg=P.stag===0?0:.5;for(i=0;i<P.rows;i++)for(j=0;j<P.per;j++)L.push({t:'rect',x:(j+(i%2?sg:0))*C/P.per+C/P.per/2,y:y0+pitch2*(i+.5),w:ww,h:P.hh,r:P.rad||.006,a:0});
       }
       if(P.k==='mill'){ /* frezeli: uçları yuvarlatılmış (eğik) dikdörtgen yarıklar */
         var pitch3=(y1-y0)/P.rows;
@@ -191,10 +191,10 @@
       if(!thin){var base2=base.clone();base2.position.y=body0-hb+.024;dev.add(base2)}
       /* boyun */
       band(rb-.01,rb+.05,body0,-gas,M.steel,dev);
-      if(s.neckThread){threads(rb+.053,body0+.012,-gas-.008,dev)}
+      if(s.neckThread){threads(rb+.053,body0+.012,-gas-.008,dev,.03,.009)}
       for(var i=0;i<3;i++){var a=i/3*Math.PI*2+.4;var sc=new THREE.Mesh(new THREE.CircleGeometry(.012,20),new THREE.MeshStandardMaterial({color:0x15161a,metalness:.4,roughness:.5}));sc.position.set(Math.cos(a)*(rb+.052),-gas-nk/2,Math.sin(a)*(rb+.052));sc.lookAt(Math.cos(a)*3,-gas-nk/2,Math.sin(a)*3);dev.add(sc)}
       if(gas) band(rb+.02,cr-.03,-gas,0,M.rubber,dev);
-      if(s.flange){ band(cr-.02,cr+.16,-gas-.02,-gas+.012,M.rubber,dev); }
+      if(s.flange){ band(cr-.02,cr+.11,ch-.04,ch+.005,M.steel,dev); var fch=new THREE.Mesh(new THREE.CylinderGeometry(cr+.11,cr+.095,.015,160,1,true),M.steel);fch.position.y=ch-.0475;dev.add(fch); band(cr-.02,cr+.07,ch-.085,ch-.045,M.rubber,dev); }
       /* bilezik */
       var ri=cr-(s.wall||.09);
       band(ri,cr,0,ch-.02,M.steel,dev);
@@ -205,13 +205,15 @@
       if(s.ring==='bayonet'){[0,Math.PI].forEach(function(a){var n=new THREE.Mesh(new THREE.BoxGeometry(.11,.05,.035),new THREE.MeshBasicMaterial({color:0x1c1d20}));n.position.set(Math.cos(a)*(ri+.005),ch-.03,Math.sin(a)*(ri+.005));n.lookAt(0,ch-.03,0);dev.add(n)})}
       if(s.ring==='thread'){ threads(ri+.004,ch*.45,ch-.03,dev) }
       if(s.lugs){[0,Math.PI].forEach(function(a){var lg=new THREE.Mesh(new THREE.BoxGeometry(.09,ch*.6,.12),M.steel);lg.position.set(Math.cos(a)*(cr+.03),ch*.6,Math.sin(a)*(cr+.03));lg.lookAt(0,ch*.6,0);dev.add(lg)});band(cr-.12,cr-.08,ch,ch+.2,M.steel,dev)}
-      if(s.ext) threads(cr+.004,ch*.55,ch-.03,dev);
+      if(s.ext) threads(cr+.004,ch*.55,ch-.03,dev,.03,.009);
+      if(s.lip) band(cr,cr+.022,ch-.09,ch-.015,M.steel,dev);
+      if(s.grip){for(var q=0;q<28;q++){var ga=q/28*Math.PI*2;var gn=new THREE.Mesh(new THREE.BoxGeometry(.018,ch*.3,.014),new THREE.MeshStandardMaterial({color:0x6f747c,metalness:.9,roughness:.45}));gn.position.set(Math.cos(ga)*(cr+.001),ch-.03-ch*.15,Math.sin(ga)*(cr+.001));gn.lookAt(0,gn.position.y,0);dev.add(gn)}}
       [.03,ch-.06].forEach(function(y){var gr=new THREE.Mesh(new THREE.TorusGeometry(cr+.001,.0045,8,160),new THREE.MeshStandardMaterial({color:0x8e949d,metalness:.9,roughness:.35}));gr.rotation.x=Math.PI/2;gr.position.y=y;dev.add(gr)});
       if(s.label){var lb=new THREE.Mesh(new THREE.CylinderGeometry(cr+.0016,cr+.0016,Math.min(.22,ch*.5),192,1,true),new THREE.MeshStandardMaterial({map:labelTex(),transparent:true,roughness:.45,metalness:.1,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));lb.position.y=ch*.45;dev.add(lb)}
       if(s.ptfe){band(rb*.55,ri-.004,ch*.35,ch-.05,M.ptfe,dev)}
       /* iki parçalı: ayrı manşon */
       var sleeve=null;
-      if(s.sleeve){sleeve=new THREE.Group();band(cr-.075,cr-.04,0,.24,M.steel,sleeve);band(cr-.075,cr+.0,.2,.24,M.steel,sleeve);sleeve.position.set(cr+.34,body0-hb+.02,.05);sleeve.rotation.z=0;dev.add(sleeve)}
+      if(s.sleeve){sleeve=new THREE.Group();band(ri-.032,ri-.004,ch-.1,ch+.3,M.steel,sleeve);var slr=new THREE.Mesh(new THREE.RingGeometry(ri-.032,ri-.004,128),M.steel);slr.rotation.x=-Math.PI/2;slr.position.y=ch+.3;sleeve.add(slr);band(ri-.034,ri-.032,ch+.26,ch+.3,M.steel,sleeve);dev.add(sleeve)}
       /* kapaklar */
       var ty=s.cap;
       if(ty==='plastic'){ /* siyah plastik, loblu */
@@ -240,7 +242,7 @@
         var hd=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,.016,32),new THREE.MeshStandardMaterial({color:0xc8a95a,metalness:1,roughness:.3}));hd.rotation.x=Math.PI/2;hd.position.y=.12;key.add(hd);
       }
       cap.userData.restY=ch+.012;
-      return {dev:dev,cap:cap,hasCap:!!ty,height:ch-body0+hb+(ty?.25:0),mid:(ch+(ty?.22:0)+(body0-hb))/2};
+      var topY=ch+(ty?.25:0)+(s.sleeve?.3:0)+(s.lugs?.2:0);return {dev:dev,cap:cap,hasCap:!!ty,height:topY-(body0-hb),mid:(topY+(body0-hb))/2};
     }
 
     var pivot=new THREE.Group(), spin=new THREE.Group(); scene.add(pivot); pivot.add(spin);
