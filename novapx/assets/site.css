@@ -1,12 +1,12 @@
 /* NOVAPX Restaurant — site.css */
-@font-face{font-family:"Cormorant Garamond";src:url(fonts/cg.woff?v=925928) format("woff");font-weight:300 700;font-display:swap}
-@font-face{font-family:"Cormorant Garamond";src:url(fonts/cg-i.woff?v=925928) format("woff");font-weight:300 700;font-style:italic;font-display:swap}
-@font-face{font-family:Jost;src:url(fonts/jost.woff?v=925928) format("woff");font-weight:100 900;font-display:swap}
-@font-face{font-family:Amiri;src:url(fonts/amiri.woff?v=925928) format("woff");font-weight:400;font-display:swap}
-@font-face{font-family:Amiri;src:url(fonts/amiri-b.woff?v=925928) format("woff");font-weight:700;font-display:swap}
-@font-face{font-family:"IBM Plex Sans Arabic";src:url(fonts/plexar-Light.woff?v=925928) format("woff");font-weight:300;font-display:swap}
-@font-face{font-family:"IBM Plex Sans Arabic";src:url(fonts/plexar-Regular.woff?v=925928) format("woff");font-weight:400;font-display:swap}
-@font-face{font-family:"IBM Plex Sans Arabic";src:url(fonts/plexar-Medium.woff?v=925928) format("woff");font-weight:500;font-display:swap}
+@font-face{font-family:"Cormorant Garamond";src:url(fonts/cg.woff?v=926566) format("woff");font-weight:300 700;font-display:swap}
+@font-face{font-family:"Cormorant Garamond";src:url(fonts/cg-i.woff?v=926566) format("woff");font-weight:300 700;font-style:italic;font-display:swap}
+@font-face{font-family:Jost;src:url(fonts/jost.woff?v=926566) format("woff");font-weight:100 900;font-display:swap}
+@font-face{font-family:Amiri;src:url(fonts/amiri.woff?v=926566) format("woff");font-weight:400;font-display:swap}
+@font-face{font-family:Amiri;src:url(fonts/amiri-b.woff?v=926566) format("woff");font-weight:700;font-display:swap}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url(fonts/plexar-Light.woff?v=926566) format("woff");font-weight:300;font-display:swap}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url(fonts/plexar-Regular.woff?v=926566) format("woff");font-weight:400;font-display:swap}
+@font-face{font-family:"IBM Plex Sans Arabic";src:url(fonts/plexar-Medium.woff?v=926566) format("woff");font-weight:500;font-display:swap}
 
 :root{
   --bg:#0d0b0a;--bg2:#15110f;--bg3:#1d1815;--line:rgba(255,232,200,.12);--line2:rgba(255,232,200,.22);
@@ -231,7 +231,8 @@ html[lang=ar] .dd .cat{letter-spacing:0;text-transform:none;font-size:13px}
 .dd h2{font-size:clamp(34px,5vw,44px);margin:8px 0 6px;display:flex;justify-content:space-between;gap:16px;align-items:baseline}
 .dd h2 .pr{font-family:var(--fb);font-size:19px;font-weight:500;white-space:nowrap;color:var(--gold2)}
 .dd .tags{display:flex;gap:8px;margin:8px 0 18px;flex-wrap:wrap}
-.dd .tags span{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);padding:5px 10px 5px 5px;border:1px solid var(--line);border-radius:999px}
+.dd .tags span{display:inline-flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);padding:4px 10px 4px 4px;border:1px solid var(--line);border-radius:999px;line-height:1}
+.dd .tags span i{flex:0 0 26px;height:26px;width:26px}
 html[dir=rtl] .dd .tags span{padding:5px 5px 5px 10px}
 .dd .desc{font-size:16px;color:var(--ink2);line-height:1.7;margin:0 0 22px}
 .dd .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px}
