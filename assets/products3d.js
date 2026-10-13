@@ -31,13 +31,24 @@
     function tex(w,h,draw,srgb){var c=document.createElement('canvas');c.width=w;c.height=h;var g=c.getContext('2d');draw(g,w,h);var t=new THREE.CanvasTexture(c);t.anisotropy=ANISO;if(srgb)t.encoding=THREE.sRGBEncoding;return t}
     function rr(g,x,y,w,h,r){r=Math.min(r,w/2,h/2);g.beginPath();g.moveTo(x+r,y);g.arcTo(x+w,y,x+w,y+h,r);g.arcTo(x+w,y+h,x,y+h,r);g.arcTo(x,y+h,x,y,r);g.arcTo(x,y,x+w,y,r);g.closePath()}
     var brushed=tex(2048,2048,function(g,w,h){g.fillStyle='#c9ced6';g.fillRect(0,0,w,h);for(var i=0;i<5200;i++){var l=150+Math.random()*95|0;g.strokeStyle='rgba('+l+','+l+','+(l+6)+','+(.04+Math.random()*.08)+')';g.lineWidth=Math.random()*1.6;var y=Math.random()*h;g.beginPath();g.moveTo(0,y);g.lineTo(w,y+(Math.random()-.5)*3);g.stroke()}},true);
+    /* galvaniz pul dokusu ve kumlanmış gri doku */
+    var galvMap=tex(1024,1024,function(g,w,h){g.fillStyle='#b9bec5';g.fillRect(0,0,w,h);for(var i=0;i<900;i++){var x=Math.random()*w,y=Math.random()*h,r=6+Math.random()*28,l=170+Math.random()*60|0;g.fillStyle='rgba('+l+','+l+','+(l+4)+','+(.18+Math.random()*.25)+')';g.beginPath();for(var k=0;k<6;k++){var a=k/6*Math.PI*2+Math.random();g.lineTo(x+Math.cos(a)*r*(0.6+Math.random()*.5),y+Math.sin(a)*r*(0.6+Math.random()*.5))}g.fill()}},true);
+    var gritMap=tex(512,512,function(g,w,h){var d=g.createImageData(w,h);for(var i=0;i<d.data.length;i+=4){var v=150+Math.random()*60|0;d.data[i]=v;d.data[i+1]=v+2;d.data[i+2]=v+6;d.data[i+3]=255}g.putImageData(d,0,0)},true);
     var M={
       steel:new THREE.MeshStandardMaterial({color:0xf3f5f8,map:brushed,metalness:.95,roughness:.22}),
       matte:new THREE.MeshStandardMaterial({color:0xdfe3e8,map:brushed,metalness:.9,roughness:.42}),
       rubber:new THREE.MeshStandardMaterial({color:0x0a0a0c,roughness:.7,metalness:0,envMapIntensity:.25}),
       plastic:new THREE.MeshStandardMaterial({color:0x0b0b0d,roughness:.42,metalness:0,envMapIntensity:.35}),
       dark:new THREE.MeshStandardMaterial({color:0x2c3036,metalness:.6,roughness:.55,side:THREE.BackSide}),
-      ptfe:new THREE.MeshStandardMaterial({color:0xf4f4f2,roughness:.55,metalness:0,envMapIntensity:.4})
+      ptfe:new THREE.MeshStandardMaterial({color:0xf4f4f2,roughness:.55,metalness:0,envMapIntensity:.4}),
+      galvMap:galvMap,
+      galv:new THREE.MeshStandardMaterial({color:0xc2c7cd,map:galvMap,metalness:.82,roughness:.5}),
+      grit:new THREE.MeshStandardMaterial({color:0xaeb3ba,map:gritMap,metalness:.55,roughness:.78}),
+      machined:new THREE.MeshStandardMaterial({color:0xf2f4f7,map:brushed,metalness:.95,roughness:.22}),
+      alIn:new THREE.MeshStandardMaterial({color:0xaeb3ba,map:brushed,metalness:.9,roughness:.38}),
+      alEdge:new THREE.MeshStandardMaterial({color:0xd8dce1,metalness:.95,roughness:.3}),
+      galvIn:new THREE.MeshStandardMaterial({color:0x8f949b,metalness:.75,roughness:.6}),
+      galvEdge:new THREE.MeshStandardMaterial({color:0xc9cdd2,metalness:.85,roughness:.4})
     };
     function band(rIn,rOut,y0,y1,mat,parent,seg){
       seg=seg||128;var h=y1-y0,g=new THREE.Group();
@@ -94,22 +105,93 @@
       for(var y=y0;y<y1;y+=.024){var t=new THREE.Mesh(new THREE.TorusGeometry(r,.007,8,96),M.matte);t.rotation.x=Math.PI/2;t.position.y=y;parent.add(t)}
     }
 
+
+    /* ---------- gerçek delikli gövde: açınım üzerinde mesafe alanı + marching squares, et kalınlıklı ---------- */
+    function holesFrom(P,r,h){
+      var C=2*Math.PI*r,L=[],y0=P.bot,y1=h-P.top,i,j;
+      if(P.k==='saw'){ /* testere kesimi: uçları sivrilen yatay/eğik yarıklar, sıra başına 2 adet */
+        var pitch=(y1-y0)/P.rows;
+        for(i=0;i<P.rows;i++)for(j=0;j<P.per;j++)L.push({t:'lens',x:(j+.5)/P.per*C+(P.shift||0)*C*(i%2),y:y0+pitch*(i+.5),w:P.arc*C,h:P.hh,a:P.tilt||0});
+      }else if(P.k==='punch'){ /* sac delme: köprüleri şaşırtmalı dikdörtgen pencereler */
+        var pitch2=(y1-y0)/P.rows,ww=C/P.per-P.bridge;
+        for(i=0;i<P.rows;i++)for(j=0;j<P.per;j++)L.push({t:'rect',x:(j+(i%2?.5:0))*C/P.per+C/P.per/2,y:y0+pitch2*(i+.5),w:ww,h:P.hh,r:P.rad||.004,a:0});
+      }
+      if(P.k==='mill'){ /* frezeli: uçları yuvarlatılmış (eğik) dikdörtgen yarıklar */
+        var pitch3=(y1-y0)/P.rows;
+        for(i=0;i<P.rows;i++)for(j=0;j<P.per;j++)L.push({t:'rect',x:(j+.5)/P.per*C+(P.shift||0)*C*(i%2),y:y0+pitch3*(i+.5),w:P.arc*C,h:P.hh,r:P.hh*(P.round||.5)-.0005,a:P.tilt||0});
+      }
+      if(P.dots){var D=P.dots; for(i=0;i<D.rows;i++)for(j=0;j<D.n;j++)L.push({t:'circ',x:(j+(i%2?.5:0))/D.n*C,y:D.y+i*D.gap,r:D.r});}
+      return L;
+    }
+    function sdfFn(L,C){
+      return function(sx,y){
+        var f=1e9;
+        for(var k=0;k<L.length;k++){var H=L[k],dx=sx-H.x;dx-=C*Math.round(dx/C);var dy=y-H.y,d;
+          if(Math.abs(dy)>.2||Math.abs(dx)>(H.w||H.r*2)+.05)continue;
+          if(H.a){var ca=Math.cos(H.a),sa=Math.sin(H.a),tx=dx*ca+dy*sa;dy=-dx*sa+dy*ca;dx=tx}
+          if(H.t==='circ'){d=Math.sqrt(dx*dx+dy*dy)-H.r}
+          else if(H.t==='rect'){var qx=Math.abs(dx)-H.w/2+H.r,qy=Math.abs(dy)-H.h/2+H.r,ox=Math.max(qx,0),oy=Math.max(qy,0);d=Math.sqrt(ox*ox+oy*oy)+Math.min(Math.max(qx,qy),0)-H.r}
+          else{var hw=H.w/2,u=Math.min(1,Math.abs(dx)/hw),hh=H.h/2*Math.pow(Math.max(0,1-Math.pow(u,6)),.22);d=Math.max(Math.abs(dy)-hh,Math.abs(dx)-hw)}
+          if(d<f)f=d}
+        return f;
+      };
+    }
+    function perfTube(r,h,t,L,res,mO,mI,mW){
+      var C=2*Math.PI*r,NU=res,NV=Math.max(8,Math.round(NU*h/C)),du=C/NU,dv=h/NV,f=sdfFn(L,C),W=NU+1,F=new Float32Array(W*(NV+1)),i,j;
+      for(j=0;j<=NV;j++)for(i=0;i<=NU;i++)F[j*W+i]=f(i*du,j*dv);
+      var O=[],ON=[],OU=[],I=[],IN=[],WP=[],WN=[],e=du*.5;
+      function pos(sx,y,rad,A){var th=sx/r;A.push(Math.cos(th)*rad,y,Math.sin(th)*rad)}
+      function nrm(sx,sgn,A){var th=sx/r;A.push(Math.cos(th)*sgn,0,Math.sin(th)*sgn)}
+      function tri(a,b,c){ /* (s,y) düzleminde CCW */
+        pos(a[0],a[1],r,O);pos(c[0],c[1],r,O);pos(b[0],b[1],r,O);nrm(a[0],1,ON);nrm(c[0],1,ON);nrm(b[0],1,ON);
+        OU.push(a[0]/C*3,a[1]/h,c[0]/C*3,c[1]/h,b[0]/C*3,b[1]/h);
+        pos(a[0],a[1],r-t,I);pos(b[0],b[1],r-t,I);pos(c[0],c[1],r-t,I);nrm(a[0],-1,IN);nrm(b[0],-1,IN);nrm(c[0],-1,IN);
+      }
+      function wall(A,B){
+        var g=[],q;[A,B].forEach(function(p){var gx=(f(p[0]+e,p[1])-f(p[0]-e,p[1])),gy=(f(p[0],p[1]+e)-f(p[0],p[1]-e)),th=p[0]/r,nx=-(gx*-Math.sin(th)),nz=-(gx*Math.cos(th)),ny=-gy,l=Math.hypot(nx,ny,nz)||1;g.push([nx/l,ny/l,nz/l])});
+        var a0=[],a1=[],b0=[],b1=[];pos(A[0],A[1],r,a0);pos(A[0],A[1],r-t,a1);pos(B[0],B[1],r,b0);pos(B[0],B[1],r-t,b1);
+        var ux=b0[0]-a0[0],uy=b0[1]-a0[1],uz=b0[2]-a0[2],vx=a1[0]-a0[0],vy=a1[1]-a0[1],vz=a1[2]-a0[2],cx=uy*vz-uz*vy,cy=uz*vx-ux*vz,cz=ux*vy-uy*vx;
+        var flip=(cx*g[0][0]+cy*g[0][1]+cz*g[0][2])<0;
+        var T=flip?[[a0,0],[a1,0],[b0,1],[b0,1],[a1,0],[b1,1]]:[[a0,0],[b0,1],[a1,0],[b0,1],[b1,1],[a1,0]];
+        T.forEach(function(v){WP.push(v[0][0],v[0][1],v[0][2]);WN.push(g[v[1]][0],g[v[1]][1],g[v[1]][2])});
+      }
+      for(j=0;j<NV;j++)for(i=0;i<NU;i++){
+        var c=[[i*du,j*dv,F[j*W+i]],[(i+1)*du,j*dv,F[j*W+i+1]],[(i+1)*du,(j+1)*dv,F[(j+1)*W+i+1]],[i*du,(j+1)*dv,F[(j+1)*W+i]]];
+        var ins=0;for(var k=0;k<4;k++)if(c[k][2]>0)ins++;
+        if(ins===0)continue;
+        if(ins===4){tri(c[0],c[1],c[2]);tri(c[0],c[2],c[3]);continue}
+        var poly=[],cr=[];
+        for(k=0;k<4;k++){var a=c[k],b=c[(k+1)%4];if(a[2]>0)poly.push(a);if((a[2]>0)!==(b[2]>0)){var tt=a[2]/(a[2]-b[2]),p=[a[0]+(b[0]-a[0])*tt,a[1]+(b[1]-a[1])*tt];poly.push(p);cr.push(p)}}
+        for(k=1;k<poly.length-1;k++)tri(poly[0],poly[k],poly[k+1]);
+        if(cr.length===2)wall(cr[0],cr[1]);else if(cr.length===4){wall(cr[0],cr[1]);wall(cr[2],cr[3])}
+      }
+      var g=new THREE.Group();
+      function mk(P,N,U,m){var G=new THREE.BufferGeometry();G.setAttribute('position',new THREE.Float32BufferAttribute(P,3));G.setAttribute('normal',new THREE.Float32BufferAttribute(N,3));if(U)G.setAttribute('uv',new THREE.Float32BufferAttribute(U,2));g.add(new THREE.Mesh(G,m))}
+      mk(O,ON,OU,mO);mk(I,IN,null,mI);mk(WP,WN,null,mW);
+      return g;
+    }
+    function baseTex(kind){return tex(1024,1024,function(g,w,h){g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#000';var R=w/2,k,a;
+      if(kind==='p1'){ /* fotoğraftaki taban: ~24 delik + ortada oval yarık */
+        var pts=[];for(var yy=-3;yy<=3;yy++)for(var xx=-3;xx<=3;xx++){var px=xx*R*.24+(yy%2?R*.12:0),py=yy*R*.24;if(Math.hypot(px,py)<R*.8&&Math.abs(py)>R*.1)pts.push([px,py])}
+        pts.forEach(function(p){g.beginPath();g.arc(R+p[0],R+p[1],R*.06,0,7);g.fill()});rr(g,R-R*.36,R-R*.055,R*.72,R*.11,R*.055);g.fill();
+      }else{ /* sac taban: sık delik ızgarası */
+        for(var y2=-R;y2<R;y2+=R*.13)for(var x2=-R;x2<R;x2+=R*.13){var xo=x2+((Math.round(y2/(R*.13)))%2?R*.065:0);if(Math.hypot(xo,y2)<R*.82){g.beginPath();g.arc(R+xo,R+y2,R*.042,0,7);g.fill()}}
+      }})}
+
     /* ---------- parametrik ürün ---------- */
     function build(s){
       var dev=new THREE.Group(), cap=new THREE.Group(); cap.visible=false;
       var rb=s.rb, hb=s.hb, cr=s.cr, ch=s.ch, gas=s.gasket?.05:0, nk=.06, body0=-(gas+nk);
-      var pat=pattern(s.body,rb,hb);
-      var body=new THREE.Mesh(new THREE.CylinderGeometry(rb,rb,hb,160,1,true),new THREE.MeshStandardMaterial({color:0xf0f2f5,map:brushed,alphaMap:pat,alphaTest:.5,metalness:.94,roughness:.24,side:THREE.DoubleSide}));
-      body.position.y=body0-hb/2;dev.add(body);
-      var inner=new THREE.Mesh(new THREE.CylinderGeometry(rb-.01,rb-.01,hb,160,1,true),new THREE.MeshStandardMaterial({color:0x2c3036,metalness:.6,roughness:.55,side:THREE.BackSide,alphaMap:pat,alphaTest:.5}));
-      inner.position.y=body.position.y;dev.add(inner);
-      var core=new THREE.Mesh(new THREE.CylinderGeometry(rb*.5,rb*.5,hb*.9,40),new THREE.MeshStandardMaterial({color:0x0e0f12,roughness:.9}));core.position.y=body.position.y;dev.add(core);
-      var base=new THREE.Mesh(new THREE.CircleGeometry(rb,96),new THREE.MeshStandardMaterial({color:0xe2e6eb,map:brushed,alphaMap:baseHoles(),alphaTest:.5,metalness:.95,roughness:.28,side:THREE.DoubleSide}));
-      base.rotation.x=Math.PI/2;base.position.y=body0-hb+.01;dev.add(base);
-      var rim=new THREE.Mesh(new THREE.TorusGeometry(rb,.013,12,128),M.steel);rim.rotation.x=Math.PI/2;rim.position.y=body0-hb;dev.add(rim);
-      if(s.body==='spiral'||s.body==='hslots'){var rim2=rim.clone();rim2.position.y=body0-.012;dev.add(rim2)}
+      var thin=s.mat==='galv'||s.mat==='grit';
+      var mO=thin?(s.mat==='grit'?M.grit:M.galv):M.machined, mI=thin?M.galvIn:M.alIn, mW=thin?M.galvEdge:M.alEdge;
+      var tube=perfTube(rb,hb,thin?.007:.022,holesFrom(s.pat,rb,hb),s.res||440,mO,mI,mW);
+      tube.position.y=body0-hb;dev.add(tube);
+      var base=new THREE.Mesh(new THREE.CircleGeometry(rb-.002,128),new THREE.MeshStandardMaterial({color:thin?0xb4b9c0:0xe2e6eb,map:thin?M.galvMap:brushed,alphaMap:baseTex(s.base||'grid'),alphaTest:.5,metalness:.9,roughness:thin?.5:.3,side:THREE.DoubleSide}));
+      base.rotation.x=Math.PI/2;base.position.y=body0-hb+(thin?.004:.012);dev.add(base);
+      if(!thin){var base2=base.clone();base2.position.y=body0-hb+.024;dev.add(base2)}
       /* boyun */
-      band(rb,rb+.05,body0,-gas,M.steel,dev);
+      band(rb-.01,rb+.05,body0,-gas,M.steel,dev);
+      if(s.neckThread){threads(rb+.053,body0+.012,-gas-.008,dev)}
       for(var i=0;i<3;i++){var a=i/3*Math.PI*2+.4;var sc=new THREE.Mesh(new THREE.CircleGeometry(.012,20),new THREE.MeshStandardMaterial({color:0x15161a,metalness:.4,roughness:.5}));sc.position.set(Math.cos(a)*(rb+.052),-gas-nk/2,Math.sin(a)*(rb+.052));sc.lookAt(Math.cos(a)*3,-gas-nk/2,Math.sin(a)*3);dev.add(sc)}
       if(gas) band(rb+.02,cr-.03,-gas,0,M.rubber,dev);
       if(s.flange){ band(cr-.02,cr+.16,-gas-.02,-gas+.012,M.rubber,dev); }
@@ -122,13 +204,14 @@
       var bore=new THREE.Mesh(new THREE.CylinderGeometry(rb+.002,rb+.002,ch*.35-body0,96,1,true),new THREE.MeshStandardMaterial({color:0x8d939c,metalness:.9,roughness:.35,side:THREE.BackSide}));bore.position.y=(ch*.35+body0)/2;dev.add(bore);
       if(s.ring==='bayonet'){[0,Math.PI].forEach(function(a){var n=new THREE.Mesh(new THREE.BoxGeometry(.11,.05,.035),new THREE.MeshBasicMaterial({color:0x1c1d20}));n.position.set(Math.cos(a)*(ri+.005),ch-.03,Math.sin(a)*(ri+.005));n.lookAt(0,ch-.03,0);dev.add(n)})}
       if(s.ring==='thread'){ threads(ri+.004,ch*.45,ch-.03,dev) }
+      if(s.lugs){[0,Math.PI].forEach(function(a){var lg=new THREE.Mesh(new THREE.BoxGeometry(.09,ch*.6,.12),M.steel);lg.position.set(Math.cos(a)*(cr+.03),ch*.6,Math.sin(a)*(cr+.03));lg.lookAt(0,ch*.6,0);dev.add(lg)});band(cr-.12,cr-.08,ch,ch+.2,M.steel,dev)}
       if(s.ext) threads(cr+.004,ch*.55,ch-.03,dev);
       [.03,ch-.06].forEach(function(y){var gr=new THREE.Mesh(new THREE.TorusGeometry(cr+.001,.0045,8,160),new THREE.MeshStandardMaterial({color:0x8e949d,metalness:.9,roughness:.35}));gr.rotation.x=Math.PI/2;gr.position.y=y;dev.add(gr)});
       if(s.label){var lb=new THREE.Mesh(new THREE.CylinderGeometry(cr+.0016,cr+.0016,Math.min(.22,ch*.5),192,1,true),new THREE.MeshStandardMaterial({map:labelTex(),transparent:true,roughness:.45,metalness:.1,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));lb.position.y=ch*.45;dev.add(lb)}
       if(s.ptfe){band(rb*.55,ri-.004,ch*.35,ch-.05,M.ptfe,dev)}
       /* iki parçalı: ayrı manşon */
       var sleeve=null;
-      if(s.sleeve){sleeve=new THREE.Group();band(cr-.06,cr-.02,0,.22,M.steel,sleeve);threads(cr-.018,.03,.2,sleeve);sleeve.position.set(cr+.34,body0-hb+.02,.05);sleeve.rotation.z=0;dev.add(sleeve)}
+      if(s.sleeve){sleeve=new THREE.Group();band(cr-.075,cr-.04,0,.24,M.steel,sleeve);band(cr-.075,cr+.0,.2,.24,M.steel,sleeve);sleeve.position.set(cr+.34,body0-hb+.02,.05);sleeve.rotation.z=0;dev.add(sleeve)}
       /* kapaklar */
       var ty=s.cap;
       if(ty==='plastic'){ /* siyah plastik, loblu */
