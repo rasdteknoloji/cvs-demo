@@ -672,3 +672,5 @@ footer .cols a[href^="tel:"]{font-family:var(--fd);font-weight:400!important;fon
 .mt-media.yt .mt-play{z-index:2}
 .mfig .yt{box-shadow:0 30px 70px rgba(0,0,0,.35)}
 @media (max-width:600px){.yt-btn{width:64px;height:64px;margin:-32px 0 0 -32px}}
+#intro .intro-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.1s ease;pointer-events:none}
+#intro.scene .intro-vid{opacity:1}
