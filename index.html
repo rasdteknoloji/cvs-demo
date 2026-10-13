@@ -13,12 +13,12 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/fontawesome.min.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/brands.min.css">
 <link rel="preload" href="assets/fonts/archivo-var.woff" as="font" type="font/woff" crossorigin>
-<link rel="stylesheet" href="assets/site.css">
+<link rel="stylesheet" href="assets/site.css?v=2610131803">
 </head>
 <body>
 
 <!-- ======== 3D AÇILIŞ ======== -->
-<script>(function(){try{var d=document.documentElement,s=sessionStorage,q=/[?&]intro=1/.test(location.search);if(q){history.replaceState(null,"",location.pathname+location.hash)}else if(s.getItem("cvs-intro")||location.hash){d.classList.add("nointro")}s.setItem("cvs-intro","1")}catch(e){}})()</script>
+<script>(function(){try{var d=document.documentElement,q=/[?&]intro=1/.test(location.search),r=document.referrer,nav=(performance.getEntriesByType&&performance.getEntriesByType("navigation")[0]||{}).type,inside=false;try{inside=!!r&&new URL(r).host===location.host}catch(e){}if(q){history.replaceState(null,"",location.pathname+location.hash)}else if(location.hash||(inside&&nav!=="reload")){d.classList.add("nointro")}}catch(e){}})()</script>
 <div id="intro">
   <canvas id="intro3d"></canvas>
   <div class="hero-logo"><span class="logo xl onDark"><span class="row"><span class="cvs">CVS</span><span class="txt"><span>Yakıt Koruma</span><span>Sistemleri</span></span></span><span class="sub">Çavuş Grup Otomotiv Güvencesiyle</span></span></div>
@@ -321,8 +321,8 @@
 
 <a class="wa" href="https://wa.me/905323978397" target="_blank" rel="noopener" aria-label="WhatsApp ile yazın"><span class="wa-tip">WhatsApp'tan yazın</span><i class="fa-brands fa-whatsapp" aria-hidden="true"></i></a>
 
-<script src="assets/site.js"></script>
-<script src="assets/three.min.js" onerror="window.__noThree=true"></script>
+<script src="assets/site.js?v=2610131803"></script>
+<script src="assets/three.min.js?v=2610131803" onerror="window.__noThree=true"></script>
 <script>
 /* ---------- SLIDER ---------- */
 (function(){
@@ -357,19 +357,24 @@
   document.getElementById('skipIntro').addEventListener('click',finish);
   intro.querySelector('.bar').style.transition='width '+TOTAL+'s linear';
   requestAnimationFrame(function(){intro.classList.add('logo-in');intro.classList.add('run')});
-  var mode='3d', alive=false;
+  /* Açılış: her cihazda aynı görüntü için önce 3D sahnenin önceden çekilmiş videosu oynar.
+     Video oynatılamazsa (ör. iPhone düşük güç modu) canlı 3D sahne, o da yoksa sade logo geçişi. */
+  var mode='video', has3d=false, vid=null;
   function simple(){ if(done)return; mode='simple'; setTimeout(function(){intro.classList.add('phase2')},1200); setTimeout(finish,2600); }
-  /* WebGL yoksa / yazılımsal çiziliyorsa: aynı animasyonun önceden çekilmiş videosu */
-  function fallback(){
-    if(mode!=='3d'||done) return; mode='video'; alive=true;
-    var v=document.createElement('video'), ok=false, si=-1;
-    v.className='intro-vid'; v.muted=true; v.defaultMuted=true; v.playsInline=true; v.preload='auto';
-    v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.setAttribute('aria-hidden','true');
-    v.innerHTML='<source src="assets/intro.webm" type="video/webm"><source src="assets/intro.mp4" type="video/mp4">';
+  function videoFail(){
+    if(done||mode!=='video') return;
+    if(vid){vid.remove();vid=null}
+    if(has3d&&window.__run3d){mode='3d';window.__run3d()} else simple();
+  }
+  (function startVideo(){
+    var v=document.createElement('video'), ok=false, si=-1; vid=v;
+    v.className='intro-vid'; v.muted=true; v.defaultMuted=true; v.playsInline=true; v.autoplay=true; v.preload='auto';
+    v.setAttribute('muted',''); v.setAttribute('playsinline',''); v.setAttribute('webkit-playsinline',''); v.setAttribute('aria-hidden','true');
+    v.innerHTML='<source src="assets/intro.webm?v=2610131803" type="video/webm"><source src="assets/intro.mp4?v=2610131803" type="video/mp4">';
     intro.insertBefore(v,intro.firstChild);
     var ST=[[1.4,'<b>01</b>Alüminyum bilezik, delikli çelik gövde'],[3.1,'<b>02</b>Depo ağzına yerleşir'],[4.5,'<b>03</b>Kilitli kapak takılır, anahtar çevrilir']];
     function tick(){
-      if(done)return; var t=v.currentTime;
+      if(done||mode!=='video')return; var t=v.currentTime;
       if(t>1.25)intro.classList.add('scene');
       var n=-1;for(var i=0;i<ST.length;i++)if(t>=ST[i][0])n=i;
       if(n!==si){si=n;stepEl.classList.remove('on');if(n>=0)(function(n){setTimeout(function(){stepEl.innerHTML=ST[n][1];stepEl.classList.add('on')},180)})(n)}
@@ -378,17 +383,19 @@
       requestAnimationFrame(tick);
     }
     v.addEventListener('playing',function(){if(ok)return;ok=true;requestAnimationFrame(tick)});
-    v.addEventListener('error',function(){if(!ok){v.remove();mode='3d';simple()}},true);
-    var p=v.play(); if(p&&p.catch)p.catch(function(){if(!ok){v.remove();mode='3d';simple()}});
-    setTimeout(function(){if(!ok&&!done){v.remove();mode='3d';simple()}},4000);
-  }
-  /* bekçi: 3D 2,5 sn içinde çizmeye başlamazsa videoya geç (sekme görünürken) */
-  (function watch(){setTimeout(function(){if(done||alive)return;if(document.hidden){watch();return}fallback()},2500)})();
-  if(window.__noThree||typeof THREE==='undefined'){ fallback(); return; }
+    v.addEventListener('ended',function(){finish()});
+    v.addEventListener('error',function(){if(!ok)videoFail()},true);
+    var p; try{p=v.play()}catch(e){}
+    if(p&&p.catch)p.catch(function(){if(!ok)setTimeout(function(){if(!ok)videoFail()},300)});
+    setTimeout(function(){if(!ok)videoFail()},3500);
+  })();
+  if(window.__noThree||typeof THREE==='undefined'){ return; }
 
   var renderer;
-  try{ renderer=new THREE.WebGLRenderer({canvas:document.getElementById('intro3d'),antialias:true,alpha:true}); }catch(e){ fallback(); return; }
-  if(!window.__forceGL){try{var gl=renderer.getContext(),dbg=gl.getExtension('WEBGL_debug_renderer_info'),rn=dbg?String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)):'';if(/swiftshader|llvmpipe|softpipe|software|basic render/i.test(rn)){fallback();return}}catch(e){}}
+  try{ renderer=new THREE.WebGLRenderer({canvas:document.getElementById('intro3d'),antialias:true,alpha:true}); }catch(e){ return; }
+  if(!window.__forceGL){try{var gl=renderer.getContext(),dbg=gl.getExtension('WEBGL_debug_renderer_info'),rn=dbg?String(gl.getParameter(dbg.UNMASKED_RENDERER_WEBGL)):'';if(/swiftshader|llvmpipe|softpipe|software|basic render/i.test(rn)){return}}catch(e){}}
+  has3d=true;
+  if(window.__forceGL){ if(vid){vid.remove();vid=null} mode='3d'; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
   renderer.outputEncoding=THREE.sRGBEncoding;
   renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.05;
@@ -533,7 +540,7 @@
   function setStep(t){var n=-1;for(var i=0;i<STEPS.length;i++)if(t>=STEPS[i][0])n=i;if(n!==stepI){stepI=n;stepEl.classList.remove('on');if(n>=0)setTimeout(function(){stepEl.innerHTML=STEPS[n][1];stepEl.classList.add('on')},180)}}
   var tgt=new THREE.Vector3(), START=performance.now(), locked=false, sceneOn=false;
   function frame(){
-    if(done||mode!=='3d')return; alive=true;
+    if(done||mode!=='3d')return;
     var t=(performance.now()-START)/1000;
     if(t>1.25&&!sceneOn){sceneOn=true;intro.classList.add('scene')}
     setStep(t);
@@ -566,7 +573,8 @@
     if(t>=TOTAL){finish();return}
     requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
+  window.__run3d=function(){START=performance.now();requestAnimationFrame(frame)};
+  if(mode==='3d')requestAnimationFrame(frame);
 })();
 </script>
 </body>
