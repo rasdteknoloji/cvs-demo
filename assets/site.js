@@ -65,19 +65,48 @@ if(document.getElementById('playBtn'))document.getElementById('playBtn').addEven
   });
 })();
 
-/* ---------- YOUTUBE: görsele tıklayınca yerinde oynat ---------- */
+/* ---------- YOUTUBE: görsele tıklayınca yerinde oynat ----------
+   • fareyle üzerine gelince YouTube alanlarına ön bağlantı (preconnect)
+   • oynatıcı gerçekten oynamaya başlayana dek poster + yükleniyor halkası kalır (siyah kutu yok) */
 (function(){
-  document.querySelectorAll('.yt[data-yt]').forEach(function(el){
+  var els=document.querySelectorAll('.yt[data-yt]'); if(!els.length) return;
+  var pre=false;
+  function preconnect(){
+    if(pre) return; pre=true;
+    ['https://www.youtube-nocookie.com','https://www.youtube.com','https://i.ytimg.com','https://www.gstatic.com'].forEach(function(h){
+      var l=document.createElement('link'); l.rel='preconnect'; l.href=h; l.crossOrigin='anonymous'; document.head.appendChild(l);
+      var d=document.createElement('link'); d.rel='dns-prefetch'; d.href=h; document.head.appendChild(d);
+    });
+  }
+  els.forEach(function(el){
     function play(){
       if(el.classList.contains('on')) return;
-      var id=el.getAttribute('data-yt'), st=el.getAttribute('data-start')||0;
+      preconnect();
+      var id=el.getAttribute('data-yt'), st=el.getAttribute('data-start')||0, shown=false;
       var f=document.createElement('iframe');
-      f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1&start='+st;
+      var org=/^https?:/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):'';
+      f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1&enablejsapi=1&start='+st+org;
       f.title='CVS Yakıt Koruma Sistemleri – Nasıl Kurulur?';
       f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'; f.allowFullscreen=true;
-      el.classList.add('on'); el.appendChild(f);
+      function show(){ if(shown) return; shown=true; el.classList.remove('loading'); el.classList.add('live'); }
+      function listen(){ try{ f.contentWindow.postMessage(JSON.stringify({event:'listening',id:'cvs-'+id,channel:'widget'}),'*'); }catch(e){} }
+      window.addEventListener('message',function(e){
+        if(!f.contentWindow||e.source!==f.contentWindow) return;
+        var d=e.data; if(typeof d==='string'){ try{ d=JSON.parse(d); }catch(x){ return; } }
+        if(!d) return;
+        if(d.event==='onReady') listen();
+        if((d.event==='onStateChange'&&d.info===1)||(d.event==='infoDelivery'&&d.info&&d.info.playerState===1)) show();
+      });
+      f.addEventListener('load',function(){ listen(); setTimeout(show,3500); });   /* otomatik oynatma engellenirse YouTube'un kendi düğmesi görünsün */
+      setTimeout(show,9000);
+      el.classList.add('on','loading'); el.appendChild(f);
     }
+    el.addEventListener('pointerenter',preconnect,{once:true});
+    el.addEventListener('focus',preconnect,{once:true});
+    el.addEventListener('touchstart',preconnect,{once:true,passive:true});
     el.addEventListener('click',play);
     el.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();play()}});
   });
+  /* boşta kalınca da ön bağlantı */
+  if('requestIdleCallback' in window) requestIdleCallback(preconnect,{timeout:4000}); else setTimeout(preconnect,3000);
 })();

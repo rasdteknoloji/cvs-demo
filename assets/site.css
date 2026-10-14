@@ -739,3 +739,81 @@ main,.hero,section{overflow-x:clip}
 .telrow:not(.main){font-size:clamp(20px,2vw,26px);font-weight:400;opacity:.78}
 .pnote{margin-top:10px;font-size:13px;color:var(--muted);display:inline-flex;gap:8px;align-items:flex-start;max-width:520px}
 .pnote:before{content:"";flex:0 0 14px;height:14px;margin-top:3px;border-radius:50%;border:1.5px solid var(--muted);background:radial-gradient(circle,var(--muted) 1.2px,transparent 1.6px) center/100% 100% no-repeat;opacity:.8}
+
+/* ================= çok dilli: yazı tipleri ================= */
+@font-face{font-family:'IBM Plex Sans';src:url(fonts/plex-sans-cyr.woff) format('woff');font-weight:100 700;font-stretch:85% 100%;font-display:swap;unicode-range:U+0400-04FF,U+2116}
+@font-face{font-family:'IBM Plex Sans Arabic';src:url(fonts/plex-ar-regular.woff) format('woff');font-weight:400;font-display:swap}
+@font-face{font-family:'IBM Plex Sans Arabic';src:url(fonts/plex-ar-medium.woff) format('woff');font-weight:500;font-display:swap}
+@font-face{font-family:'IBM Plex Sans Arabic';src:url(fonts/plex-ar-semibold.woff) format('woff');font-weight:600;font-display:swap}
+@font-face{font-family:'IBM Plex Sans Arabic';src:url(fonts/plex-ar-bold.woff) format('woff');font-weight:700 900;font-display:swap}
+html[lang=ru]{--fd:'IBM Plex Sans',system-ui,sans-serif}
+html[lang=ru] h1,html[lang=ru] h2,html[lang=ru] h3,html[lang=ru] .ph-title{font-weight:700;letter-spacing:-.02em}
+html[lang=ar]{--fd:'IBM Plex Sans Arabic','IBM Plex Sans',system-ui,sans-serif;--fb:'IBM Plex Sans Arabic','IBM Plex Sans',system-ui,sans-serif}
+html[lang=ar] body{letter-spacing:0;line-height:1.8}
+html[lang=ar] h1,html[lang=ar] h2,html[lang=ar] h3{letter-spacing:0;line-height:1.3;font-weight:700}
+html[lang=ar] .eyebrow,html[lang=ar] .btn,html[lang=ar] nav a,html[lang=ar] .crumbs,html[lang=ar] .toc a,html[lang=ar] .g-num,html[lang=ar] .pc-n{letter-spacing:0;text-transform:none}
+html[lang=ar] .tel,html[lang=ar] .telrow,html[lang=ar] [href^="tel:"],html[lang=ar] .statcard b{direction:ltr;unicode-bidi:isolate}
+html[lang=ar] .telrow{display:inline-flex;flex-direction:row-reverse}
+html[lang=ar] .logo{direction:ltr}
+
+/* ================= dil değiştirici ================= */
+.lang{position:relative}
+.lang>button{display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--text);font:600 13px/1 var(--fb);letter-spacing:.06em;cursor:pointer;transition:border-color .2s,color .2s}
+.lang>button:hover{border-color:var(--red)}
+.lang>button svg{opacity:.8}
+.lang ul{position:absolute;top:calc(100% + 8px);inset-inline-end:0;margin:0;padding:6px;list-style:none;min-width:180px;background:var(--surface);border:1px solid var(--line);border-radius:14px;box-shadow:0 24px 50px -20px rgba(0,0,0,.45);opacity:0;transform:translateY(-6px);pointer-events:none;transition:opacity .2s,transform .2s;z-index:60}
+.lang.open ul{opacity:1;transform:none;pointer-events:auto}
+.lang li a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:9px;color:var(--text);text-decoration:none;font:500 14px/1 var(--fb);transition:background .15s}
+.lang li a b{font:700 11px/1 var(--fm);letter-spacing:.1em;color:var(--muted);min-width:22px}
+.lang li a:hover{background:var(--bg2,rgba(127,127,127,.12))}
+.lang li a[aria-current=true]{color:var(--red)}.lang li a[aria-current=true] b{color:var(--red)}
+.mnav-lang{display:flex;gap:6px;flex-wrap:wrap;margin-top:18px;padding-top:18px;border-top:1px solid var(--line)}
+.mnav-lang a{flex:1;text-align:center;padding:10px 0!important;border:1px solid var(--line);border-radius:10px;font:600 13px/1 var(--fm)!important;letter-spacing:.08em}
+.mnav-lang a.cur{background:var(--red);border-color:var(--red);color:#fff}
+@media(max-width:980px){.lang>button span{display:none}.lang>button{padding:0 11px;gap:0}}
+
+/* ================= sağdan sola (Arapça) ================= */
+[dir=rtl] nav{margin-left:0;margin-right:auto}
+[dir=rtl] .pc-go{margin-left:0;margin-right:auto;transform:scaleX(-1)}
+[dir=rtl] .viewer{margin-left:0;margin-right:auto}
+[dir=rtl] .tab{text-align:right}
+[dir=rtl] .sec-head{text-align:right}
+[dir=rtl] .logo .txt span:last-child{text-align:left}
+[dir=rtl] .pull{border-left:0;border-right:3px solid var(--red);padding:6px 22px 6px 0}
+[dir=rtl] .legal .note{border-left:0;border-right:3px solid var(--red);border-radius:12px 0 0 12px}
+[dir=rtl] .legal article ul{padding-left:0;padding-right:20px}
+[dir=rtl] .statcard,[dir=rtl] .step{border-left:0;border-right:1px solid var(--line)}
+[dir=rtl] .ref-stats .statcard:nth-child(2n){border-left:0;border-right:1px solid var(--line);padding-left:26px;padding-right:24px}
+[dir=rtl] .statcard::before{left:auto;right:28px}
+[dir=rtl] .pledge div+div{border-left:0;border-right:1px solid var(--line);padding-left:0;padding-right:20px}
+[dir=rtl] .endbar .wrap{padding-right:0;padding-left:112px}
+[dir=rtl] .wa{right:auto;left:24px}
+[dir=rtl] .wa-tip{right:auto;left:76px;transform:translateY(-50%) translateX(-6px)}
+[dir=rtl] .scroll-hint{right:auto;left:40px}
+[dir=rtl] #intro .skip{right:auto;left:28px}
+[dir=rtl] .player .meta{left:28px;right:28px}
+[dir=rtl] .page-hero::before{right:auto;left:-10%}
+[dir=rtl] .step::after{right:auto;left:-30px}
+[dir=rtl] .product .visual .tag.t1{left:auto;right:0}[dir=rtl] .product .visual .tag.t2{right:auto;left:0}[dir=rtl] .product .visual .tag.t3{left:auto;right:8%}
+[dir=rtl] .marquee>div,[dir=rtl] .marquee .track,[dir=rtl] .marquee ul{direction:ltr}
+[dir=rtl] .crumbs span:not(:last-child){display:inline-block;transform:scaleX(-1)}
+[dir=rtl] .lang ul{inset-inline-end:auto;inset-inline-start:0}
+/* çok dilli başlık: metinler kırılmasın, dar ekranda erken hamburger */
+nav a,.hdr-actions .btn,.logo .txt,.logo .sub,.lang>button{white-space:nowrap}
+@media (max-width:1280px){nav{gap:18px}header .wrap{gap:18px}}
+@media (max-width:1120px){nav{display:none}.burger{display:grid}header .wrap{min-height:72px}.hdr-actions{margin-inline-start:auto}}
+@media (max-width:600px){.lang>button{width:40px;height:40px;padding:0;justify-content:center}.hdr-actions .btn{padding:0 12px;font-size:13px}header .logo .txt{font-size:10px}}
+@media (max-width:400px){header .logo .txt{font-size:9.5px}header .wrap{gap:8px}}
+@media (max-width:480px){header .logo .txt{display:none}header .logo .cvs{font-size:30px}}
+/* form dar ekranda taşmasın (girdi öz-genişliği ızgarayı büyütmesin) */
+.cta>*{min-width:0}.form{min-width:0}.form label{min-width:0}.form input,.form select{width:100%;min-width:0;box-sizing:border-box}
+[dir=rtl] input[type=tel],[dir=rtl] input[type=number]{direction:ltr;text-align:right}
+
+/* YouTube: yüklenirken poster kalsın, düğme yükleniyor halkasına dönsün */
+.yt iframe{opacity:0;transition:opacity .35s}
+.yt.live iframe{opacity:1}
+.yt.on.loading img{opacity:1;filter:brightness(.7)}
+.yt.on.loading .yt-btn{opacity:1;transform:none}
+.yt.on.loading .yt-btn svg{display:none}
+.yt.on.loading .yt-btn::after{content:'';width:34px;height:34px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:ytspin .8s linear infinite}
+@keyframes ytspin{to{transform:rotate(360deg)}}
