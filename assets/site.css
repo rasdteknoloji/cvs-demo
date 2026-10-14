@@ -730,16 +730,12 @@ footer .cols a[href^="tel:"]{font-family:var(--fd);font-weight:400!important;fon
 main,.hero,section{overflow-x:clip}
 .pm-stage .pm-photo{width:100%!important;height:100%!important;max-width:none;object-fit:contain}
 
-/* teklif: telefon satırları */
-.tels{display:grid;gap:14px;margin-top:8px}
-.telrow{display:flex;align-items:center;gap:16px;text-decoration:none;color:var(--text);width:max-content;max-width:100%}
-.telrow .ti{flex:0 0 52px;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;background:var(--red);color:#fff;box-shadow:0 10px 24px -12px rgba(176,32,40,.7);transition:transform .25s}
-.telrow .ti svg{width:24px;height:24px}
-.telrow:hover .ti{transform:translateY(-2px)}
-.telrow .tt{display:grid;gap:2px;line-height:1.05}
-.telrow .tt small{font:600 11px/1 var(--fb);letter-spacing:.18em;text-transform:uppercase;color:var(--muted)}
-.telrow .tt b{font-family:var(--fd);font-weight:300;font-stretch:104%;font-size:clamp(28px,3vw,40px);letter-spacing:.01em;font-feature-settings:"tnum" 1,"lnum" 1;white-space:nowrap}
-.telrow .tt b em{font-style:normal;font-weight:500;font-size:.62em;color:var(--red);vertical-align:.12em;margin-right:.1em}
-.telrow:not(.main) .ti{background:var(--bg2,#f3f3f5);color:var(--text);box-shadow:none;border:1px solid var(--line)}
-.telrow:not(.main) .tt b{font-size:clamp(22px,2.2vw,28px);font-weight:400;opacity:.85}
-@media(max-width:560px){.telrow{gap:12px}.telrow .ti{flex-basis:44px;width:44px;height:44px;border-radius:12px}.telrow .tt b{font-size:26px}.telrow:not(.main) .tt b{font-size:20px}}
+/* teklif: telefon satırları (sade) */
+.tels{display:grid;gap:6px;margin-top:6px}
+.telrow{display:inline-flex;align-items:center;gap:14px;text-decoration:none;color:var(--text);width:max-content;max-width:100%;font-family:var(--fd);font-weight:300;font-stretch:104%;font-size:clamp(28px,3vw,40px);letter-spacing:.01em;font-feature-settings:"tnum" 1,"lnum" 1;line-height:1.2;transition:color .2s}
+.telrow svg{width:.62em;height:.62em;color:var(--red);flex:0 0 auto}
+.telrow em{font-style:normal;font-weight:400;font-size:.6em;color:var(--muted);vertical-align:.14em;margin-right:.12em}
+.telrow:hover{color:var(--red)}
+.telrow:not(.main){font-size:clamp(20px,2vw,26px);font-weight:400;opacity:.78}
+.pnote{margin-top:10px;font-size:13px;color:var(--muted);display:inline-flex;gap:8px;align-items:flex-start;max-width:520px}
+.pnote:before{content:"";flex:0 0 14px;height:14px;margin-top:3px;border-radius:50%;border:1.5px solid var(--muted);background:radial-gradient(circle,var(--muted) 1.2px,transparent 1.6px) center/100% 100% no-repeat;opacity:.8}
