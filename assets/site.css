@@ -737,8 +737,8 @@ main,.hero,section{overflow-x:clip}
 .telrow em{font-style:normal;font-weight:400;font-size:.6em;color:var(--muted);vertical-align:.14em;margin-right:.12em}
 .telrow:hover{color:var(--red)}
 .telrow:not(.main){font-size:clamp(20px,2vw,26px);font-weight:400;opacity:.78}
-.pnote{margin-top:10px;font-size:13px;color:var(--muted);display:inline-flex;gap:8px;align-items:flex-start;max-width:520px}
-.pnote:before{content:"";flex:0 0 14px;height:14px;margin-top:3px;border-radius:50%;border:1.5px solid var(--muted);background:radial-gradient(circle,var(--muted) 1.2px,transparent 1.6px) center/100% 100% no-repeat;opacity:.8}
+.pnote{margin-top:10px;font-size:13px;color:var(--red2,var(--red))!important;font-weight:600;display:inline-flex;gap:8px;align-items:flex-start;max-width:520px}
+.pnote:before{content:"";flex:0 0 14px;height:14px;margin-top:3px;border-radius:50%;border:1.5px solid var(--red2,var(--red));background:radial-gradient(circle,var(--red2,var(--red)) 1.2px,transparent 1.6px) center/100% 100% no-repeat;opacity:1}
 
 /* ================= çok dilli: yazı tipleri ================= */
 @font-face{font-family:'IBM Plex Sans';src:url(fonts/plex-sans-cyr.woff) format('woff');font-weight:100 700;font-stretch:85% 100%;font-display:swap;unicode-range:U+0400-04FF,U+2116}
