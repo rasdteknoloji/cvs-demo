@@ -82,10 +82,10 @@ if(document.getElementById('playBtn'))document.getElementById('playBtn').addEven
     function play(){
       if(el.classList.contains('on')) return;
       preconnect();
-      var id=el.getAttribute('data-yt'), st=el.getAttribute('data-start')||0, shown=false;
+      var id=el.getAttribute('data-yt'), st=parseInt(el.getAttribute('data-start')||'0',10)||0, shown=false;
       var f=document.createElement('iframe');
       var org=/^https?:/.test(location.protocol)?'&origin='+encodeURIComponent(location.origin):'';
-      f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1&enablejsapi=1&start='+st+org;
+      f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&rel=0&playsinline=1&enablejsapi=1'+(st>0?'&start='+st:'')+org;
       f.title='CVS أنظمة حماية الوقود – كيف يتم التركيب؟';
       f.allow='accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture'; f.allowFullscreen=true;
       function show(){ if(shown) return; shown=true; el.classList.remove('loading'); el.classList.add('live'); }
