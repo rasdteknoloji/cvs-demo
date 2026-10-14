@@ -114,11 +114,15 @@
         for(i=0;i<P.rows;i++)for(j=0;j<P.per;j++)L.push({t:'lens',x:(j+.5)/P.per*C+(P.shift||0)*C*(i%2),y:y0+pitch*(i+.5),w:P.arc*C,h:P.hh,a:P.tilt||0});
       }else if(P.k==='punch'){ /* sac delme: köprüleri şaşırtmalı dikdörtgen pencereler */
         var pitch2=(y1-y0)/P.rows,ww=C/P.per-P.bridge;
-        var sg=P.stag===0?0:.5;for(i=0;i<P.rows;i++)for(j=0;j<P.per;j++)L.push({t:'rect',x:(j+(i%2?sg:0))*C/P.per+C/P.per/2,y:y0+pitch2*(i+.5),w:ww,h:P.hh,r:P.rad||.006,a:0});
+        var sg=P.stag===0?0:.5;
+        for(i=0;i<P.rows;i++){var per=P.rowPer?P.rowPer[i%P.rowPer.length]:P.per,pr=P.pair||[1],sum=0,k;for(k=0;k<per;k++)sum+=pr[k%pr.length];
+          var base=(C-per*P.bridge)/sum,x=0,off=(i%2?sg:0)*(base*pr[0]+P.bridge);
+          for(j=0;j<per;j++){var w=base*pr[j%pr.length];L.push({t:'rect',x:x+w/2+off,y:y0+pitch2*(i+.5),w:w,h:P.hh,r:P.rad||.006,a:0});x+=w+P.bridge}}
       }
       if(P.k==='mill'){ /* frezeli: uçları yuvarlatılmış (eğik) dikdörtgen yarıklar */
         var pitch3=(y1-y0)/P.rows;
-        for(i=0;i<P.rows;i++)for(j=0;j<P.per;j++)L.push({t:'rect',x:(j+.5)/P.per*C+(P.shift||0)*C*(i%2),y:y0+pitch3*(i+.5),w:P.arc*C,h:P.hh,r:P.hh*(P.round||.5)-.0005,a:P.tilt||0});
+        for(i=0;i<P.rows;i++){var arc=P.arc*(P.rowArc?P.rowArc[i%P.rowArc.length]:1),shx=P.rowShift?P.rowShift[i%P.rowShift.length]:(P.shift||0)*(i%2),per=P.rowPer?P.rowPer[i%P.rowPer.length]:P.per;
+          for(j=0;j<per;j++)L.push({t:P.end==='tap'?'tap':'rect',x:(j+.5)/per*C+shx*C,y:y0+pitch3*(i+.5),w:arc*C,h:P.hh,r:P.hh*(P.round||.5)-.0005,tp:(P.tp||1.1)*P.hh,a:P.tilt||0})}
       }
       if(P.dots){var D=P.dots; for(i=0;i<D.rows;i++)for(j=0;j<D.n;j++)L.push({t:'circ',x:(j+(i%2?.5:0))/D.n*C,y:D.y+i*D.gap,r:D.r});}
       return L;
@@ -130,6 +134,7 @@
           if(Math.abs(dy)>.2||Math.abs(dx)>(H.w||H.r*2)+.05)continue;
           if(H.a){var ca=Math.cos(H.a),sa=Math.sin(H.a),tx=dx*ca+dy*sa;dy=-dx*sa+dy*ca;dx=tx}
           if(H.t==='circ'){d=Math.sqrt(dx*dx+dy*dy)-H.r}
+          else if(H.t==='tap'){var hw2=H.w/2,ax=Math.abs(dx),hl=H.h/2*(ax>hw2-H.tp?Math.max(0,(hw2-ax)/H.tp):1);d=Math.max(Math.abs(dy)-hl,ax-hw2)}
           else if(H.t==='rect'){var qx=Math.abs(dx)-H.w/2+H.r,qy=Math.abs(dy)-H.h/2+H.r,ox=Math.max(qx,0),oy=Math.max(qy,0);d=Math.sqrt(ox*ox+oy*oy)+Math.min(Math.max(qx,qy),0)-H.r}
           else{var hw=H.w/2,u=Math.min(1,Math.abs(dx)/hw),hh=H.h/2*Math.pow(Math.max(0,1-Math.pow(u,6)),.22);d=Math.max(Math.abs(dy)-hh,Math.abs(dx)-hw)}
           if(d<f)f=d}
