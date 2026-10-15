@@ -135,7 +135,8 @@ html[lang=ar] .info p{letter-spacing:0;text-transform:none}
 .pdetail{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:start}
 .pimg{background:#fff;border:1px solid var(--line);border-radius:16px;padding:40px;display:flex;align-items:center;justify-content:center;aspect-ratio:1}
 .pimg img{max-height:100%;object-fit:contain}
-.pinfo h1{font-size:clamp(28px,3.4vw,40px);font-weight:800;color:var(--navy)}
+.pinfo h1{font-size:clamp(28px,3.4vw,40px);font-weight:800;color:var(--navy);overflow-wrap:anywhere}
+.specs span,.crumbs span,.info h4,.catcard h3{overflow-wrap:anywhere}
 .pinfo .sub{font-size:15px;color:var(--muted);margin-top:6px;font-weight:500}
 .pinfo .catlink{display:inline-flex;align-items:center;gap:8px;margin-top:18px;font-size:13px;font-weight:700;color:var(--navy);background:var(--bg);padding:7px 14px;border-radius:999px}
 .pinfo .catlink:hover{color:var(--red)}
