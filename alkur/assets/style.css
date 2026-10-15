@@ -164,6 +164,7 @@ html[lang=ar] .info p{letter-spacing:0;text-transform:none}
 .clist b{display:block;font-size:13px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.06em}
 html[lang=ar] .clist b{letter-spacing:0}
 .clist a,.clist span{font-size:16px;font-weight:600;color:var(--navy);direction:ltr;unicode-bidi:isolate}
+.clist a.txt{direction:inherit}
 html[dir=rtl] .clist span.txt{direction:rtl}
 .clist a:hover{color:var(--red)}
 .map{border-radius:14px;overflow:hidden;border:1px solid var(--line);min-height:380px;background:var(--bg)}
