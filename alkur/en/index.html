@@ -13,6 +13,8 @@
 
 </head>
 <body>
+<div id="intro" hidden><img class="ilogo" src="../assets/logo.png" alt="Alkur Ticaret"><div class="iline"></div><div class="itxt">SUPER TIR Cable</div></div>
+<script>(function(){var k='alkur_intro';try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}var el=document.getElementById('intro');el.hidden=false;document.body.style.overflow='hidden';setTimeout(function(){el.classList.add('out');document.body.style.overflow='';setTimeout(function(){el.remove()},900)},2100)})();</script>
 <header>
  <div class="wrap nav">
   <a class="logo" href="../en/index.html"><img src="../assets/logo.png" alt="Alkur Ticaret"></a>
@@ -28,11 +30,32 @@
  </div>
 </header>
 
-<section class="hero"><div class="bg"></div><div class="wrap">
-  <span class="eyebrow" style="color:#ff6b6b">Ikitelli OIZ · Istanbul</span>
-  <h1>Your <em>Reliable Supplier</em> of Truck, Trailer &amp; Tarpaulin Accessories</h1><p>From customs ropes to sliding roof systems, from hooks to reflectors – every accessory the transport industry needs, in one place.</p>
+<section class="hero" id="hero">
+ <div class="slide active"><div class="bg"><img src="../assets/hero.jpg" alt=""></div><div class="wrap">
+  <span class="eyebrow" style="color:#ff6b6b">Ikitelli OIZ · Istanbul</span><h1>Your <em>Reliable Supplier</em> of Truck, Trailer &amp; Tarpaulin Accessories</h1><p>From customs ropes to sliding roof systems, from hooks to reflectors – every accessory the transport industry needs, in one place.</p>
   <div class="actions"><a class="btn" href="../en/urunler.html">Browse Products</a><a class="btn ghost" href="../en/iletisim.html">Contact Us</a></div>
-</div><div class="stripe"></div></section>
+ </div></div>
+ <div class="slide"><div class="bg"><img src="../assets/hero2.jpg" alt="" loading="lazy"></div><div class="wrap">
+  <span class="eyebrow" style="color:#ff6b6b">SUPER TIR Cable</span><h1>The <em>Registered Brand</em> in Customs Ropes</h1><p>6 mm, 8 mm and European type customs ropes under the SUPER TIR Cable brand, from stock, for domestic and export markets.</p>
+  <div class="actions"><a class="btn" href="../en/kategori/gumruk-halatlari.html">Customs Ropes</a><a class="btn ghost" href="../en/iletisim.html">Contact Us</a></div>
+ </div></div><div class="slide"><div class="bg"><img src="../assets/hero3.jpg" alt="" loading="lazy"></div><div class="wrap">
+  <span class="eyebrow" style="color:#ff6b6b">Fast Delivery from Stock</span><h1>Hooks, Eyelets, Buckles and <em>All Accessories</em></h1><p>More than 70 product types for tarpaulins and trailers; competitive pricing for wholesale and export orders.</p>
+  <div class="actions"><a class="btn" href="../en/kategori/kancalar.html">Hooks</a><a class="btn ghost" href="../en/iletisim.html">Contact Us</a></div>
+ </div></div>
+ <div class="ctrl"><div class="wrap"><div class="dots" id="dots"></div><div class="arrows"><button type="button" id="sprev" aria-label="prev"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 6l-6 6 6 6"/></svg></button><button type="button" id="snext" aria-label="next"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></button></div></div></div>
+ <div class="stripe"></div>
+</section>
+<script>
+(function(){var sl=[].slice.call(document.querySelectorAll('#hero .slide')),dots=document.getElementById('dots'),i=0,t;
+sl.forEach(function(_,k){var b=document.createElement('button');b.onclick=function(){go(k)};dots.appendChild(b)});
+function go(n){var p=i;i=(n+sl.length)%sl.length;if(i===p)return;sl.forEach(function(x,k){x.className='slide'+(k===i?' active':k===p?' prev':'')});dots.children[p].className='';dots.children[i].className='on';reset()}
+function reset(){clearInterval(t);t=setInterval(function(){go(i+1)},6000)}
+dots.children[0].className='on';reset();
+document.getElementById('snext').onclick=function(){go(i+1)};document.getElementById('sprev').onclick=function(){go(i-1)};
+var sx=0;document.getElementById('hero').addEventListener('touchstart',function(e){sx=e.touches[0].clientX},{passive:true});
+document.getElementById('hero').addEventListener('touchend',function(e){var d=e.changedTouches[0].clientX-sx;if(Math.abs(d)>50){var rtl=document.documentElement.dir==='rtl';go(i+((d<0)!==rtl?1:-1))}});
+})();
+</script>
 <section class="stats"><div class="wrap">
   <div class="stat"><b>8</b><span>Product Categories</span></div><div class="stat"><b>75+</b><span>Product Types</span></div>
   <div class="stat"><b>SUPER TIR</b><span>Registered Brand</span></div><div class="stat"><b>Domestic & Export</b><span>Wholesale</span></div>

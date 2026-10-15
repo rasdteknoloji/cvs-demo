@@ -13,6 +13,8 @@
 
 </head>
 <body>
+<div id="intro" hidden><img class="ilogo" src="../assets/logo.png" alt="Alkur Ticaret"><div class="iline"></div><div class="itxt">SUPER TIR Cable</div></div>
+<script>(function(){var k='alkur_intro';try{if(sessionStorage.getItem(k))return;sessionStorage.setItem(k,'1')}catch(e){}var el=document.getElementById('intro');el.hidden=false;document.body.style.overflow='hidden';setTimeout(function(){el.classList.add('out');document.body.style.overflow='';setTimeout(function(){el.remove()},900)},2100)})();</script>
 <header>
  <div class="wrap nav">
   <a class="logo" href="../ar/index.html"><img src="../assets/logo.png" alt="Alkur Ticaret"></a>
@@ -40,15 +42,17 @@
    <div class="map" style="margin-top:30px"><iframe src="https://www.google.com/maps?q=%C4%B0kitelli+Organize+Sanayi+B%C3%B6lgesi+%C4%B0stanbul&output=embed" loading="lazy" title="Map"></iframe></div>
   </div>
   <form class="form" id="qf" onsubmit="return sendWA(event)">
-   <h3>نموذج عرض سعر سريع</h3><p>املأ النموذج وسيتم إرسال رسالتك إلينا عبر واتساب.</p>
+   <h3>نموذج عرض سعر سريع</h3><p>املأ النموذج وأرسله إلينا بنقرة واحدة عبر واتساب أو البريد الإلكتروني.</p>
    <label>الاسم / الشركة</label><input name="name" required>
    <label>الهاتف</label><input name="phone" type="tel">
    <label>المنتجات والكميات المطلوبة</label><textarea name="msg" required></textarea>
-   <button class="btn wa" type="submit"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>إرسال عبر واتساب</button>
+   <div class="acts"><button class="btn wa" type="submit"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.6.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.8 12 12 0 0 0 4.6 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg>إرسال عبر واتساب</button><span>أو</span><button class="btn navy" type="button" onclick="sendMail()"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>إرسال عبر البريد الإلكتروني</button></div>
   </form>
 </div></section>
 <script>
-function sendWA(e){e.preventDefault();var f=e.target;var t=[f.name.value,f.phone.value,'',f.msg.value].join('\n').trim();window.open('https://wa.me/905308616624?text='+encodeURIComponent(t),'_blank');return false}
+function body(){var f=document.getElementById('qf');return [f.name.value,f.phone.value,'',f.msg.value].join('\n').trim()}
+function sendWA(e){e.preventDefault();var f=document.getElementById('qf');if(!f.reportValidity())return false;window.open('https://wa.me/905308616624?text='+encodeURIComponent(body()),'_blank');return false}
+function sendMail(){var f=document.getElementById('qf');if(!f.reportValidity())return;location.href='mailto:info@alkurticaret.com?subject='+encodeURIComponent('طلب عرض سعر – ألكور للتجارة')+'&body='+encodeURIComponent(body())}
 </script>
 <footer>
  <div class="wrap">
