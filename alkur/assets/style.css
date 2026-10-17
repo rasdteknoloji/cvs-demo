@@ -39,9 +39,11 @@ header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdro
 .lang{position:relative}
 .lang>button{display:flex;align-items:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:6px;padding:9px 12px;font:600 13px var(--font);color:var(--navy);cursor:pointer}
 .lang>button svg{opacity:.6}
-.lang .menu{position:absolute;top:calc(100% + 6px);inset-inline-end:0;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 30px rgba(31,58,96,.14);min-width:150px;display:none;overflow:hidden;z-index:60}
+.lang .menu{position:absolute;top:calc(100% + 6px);inset-inline-end:0;background:#fff;border:1px solid var(--line);border-radius:8px;box-shadow:0 12px 30px rgba(31,58,96,.14);min-width:190px;display:none;overflow:hidden;z-index:60}
 .lang.open .menu{display:block}
-.lang .menu a{display:flex;justify-content:space-between;gap:12px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy)}
+.lang .menu a{display:flex;align-items:center;gap:10px;padding:10px 14px;font-size:13px;font-weight:600;color:var(--navy)}
+.lang .menu a b{font-weight:600;flex:1}
+.flag{width:22px;height:15px;border-radius:3px;object-fit:cover;box-shadow:0 0 0 1px rgba(0,0,0,.12);flex:none}
 .lang .menu a:hover{background:var(--bg)}
 .lang .menu a.cur{color:var(--red)}
 .lang .menu a span{color:var(--muted);font-weight:500;font-size:11px}
