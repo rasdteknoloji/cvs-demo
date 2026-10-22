@@ -257,7 +257,7 @@
     var pivot=new THREE.Group(), spin=new THREE.Group(); scene.add(pivot); pivot.add(spin);
     var blob=tex(256,256,function(g,w,h){var gr=g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);gr.addColorStop(0,'rgba(0,0,0,.7)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,w,h)});
     var shadow=new THREE.Mesh(new THREE.PlaneGeometry(1.8,1.8),new THREE.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false,opacity:.5}));shadow.rotation.x=-Math.PI/2;scene.add(shadow);
-    var built={}, model=null, capOn=false, capK=0, yaw=-.6, pitch=.15, vy=0, vp=0, auto=true, dragging=false, lx=0, ly=0, idle=0, last=0, running=false, camD=5, autoSpeed=.5, basePitch=.15;
+    var showroomMode=false, built={}, model=null, capOn=false, capK=0, yaw=-.6, pitch=.15, vy=0, vp=0, auto=true, dragging=false, lx=0, ly=0, idle=0, last=0, running=false, camD=5, autoSpeed=.5, basePitch=.15;
     function show(i){
       if(model){spin.remove(model.dev)}
       if(!built[i]) built[i]=build(DATA[i].m);
@@ -268,6 +268,7 @@
     }
     /* showroom: birden çok ürün döner tablada */
     function showGroup(idxs){
+      showroomMode=true;
       if(model){spin.remove(model.dev)}
       var g=new THREE.Group(), n=idxs.length, rad=1.15, maxH=0;
       idxs.forEach(function(i,k){
@@ -286,22 +287,21 @@
       /* gölgeler */
       renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
       g.traverse(function(o){if(o.isMesh){o.castShadow=true;}}); disc.castShadow=false; disc.receiveShadow=true;
-      /* tavandan sarkan halka lamba (sıcak ışık) */
-      var lamp=new THREE.Group(); lamp.position.y=maxH+.62; g.add(lamp);
-      var glow=new THREE.MeshStandardMaterial({color:0xfff1d6,emissive:0xffc77a,emissiveIntensity:2.6,roughness:.4,metalness:.2});
-      var gold=new THREE.MeshStandardMaterial({color:0xc9a35a,metalness:.9,roughness:.3});
-      var r1=new THREE.Mesh(new THREE.TorusGeometry(.62,.022,12,96),glow); r1.rotation.x=Math.PI/2; lamp.add(r1);
-      var r2=new THREE.Mesh(new THREE.TorusGeometry(.44,.022,12,96),glow); r2.rotation.x=Math.PI/2-1.05; r2.rotation.y=.4; lamp.add(r2);
-      var r2b=new THREE.Mesh(new THREE.TorusGeometry(.44,.028,12,96),gold); r2b.rotation.copy(r2.rotation); r2b.position.y=-.01; lamp.add(r2b);
-      var canopy=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.03,32),gold); canopy.position.y=1.0; lamp.add(canopy);
-      for(var ci=0;ci<4;ci++){var ca=ci/4*Math.PI*2+.4;var wire=new THREE.Mesh(new THREE.CylinderGeometry(.004,.004,.98,6),gold);wire.position.set(Math.cos(ca)*.3,.5,Math.sin(ca)*.3);lamp.add(wire)}
-      var lampLight=new THREE.PointLight(0xffd8a0,1.4,8,2); lampLight.position.y=.05; lamp.add(lampLight);
-      var spot=new THREE.SpotLight(0xffe4bf,2.6,12,.95,.6,1.1); spot.position.set(0,maxH+.6,0); spot.target.position.set(0,0,0); g.add(spot); g.add(spot.target);
+      /* altın alt aydınlatma: platform kenarı ışıldar, ürünler alttan sıcak ışıkla yıkanır */
+      rim.material=new THREE.MeshStandardMaterial({color:0xf0c060,metalness:.4,roughness:.35,emissive:0xd79a2b,emissiveIntensity:1.6});
+      var haloTex=tex(512,512,function(g,w,h){var gr=g.createRadialGradient(w/2,h/2,w*.18,w/2,h/2,w/2);gr.addColorStop(0,'rgba(255,196,96,0)');gr.addColorStop(.45,'rgba(255,190,90,.55)');gr.addColorStop(.7,'rgba(255,170,60,.18)');gr.addColorStop(1,'rgba(255,160,40,0)');g.fillStyle=gr;g.fillRect(0,0,w,h)});
+      var halo=new THREE.Mesh(new THREE.PlaneGeometry((rad+.8)*2.9,(rad+.8)*2.9),new THREE.MeshBasicMaterial({map:haloTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+      halo.rotation.x=-Math.PI/2; halo.position.y=-.08; g.add(halo);
+      var under=new THREE.Mesh(new THREE.CylinderGeometry(rad+.82,rad+.95,.06,96,1,true),new THREE.MeshBasicMaterial({color:0xffc864,transparent:true,opacity:.35,side:THREE.DoubleSide,blending:THREE.AdditiveBlending,depthWrite:false}));
+      under.position.y=-.075; g.add(under);
+      var up1=new THREE.PointLight(0xffb84d,1.6,6,1.6); up1.position.set(0,.08,0); g.add(up1);
+      for(var ui=0;ui<3;ui++){var ua=ui/3*Math.PI*2+.5;var up=new THREE.PointLight(0xffc266,.9,5,1.8);up.position.set(Math.cos(ua)*(rad+.55),.06,Math.sin(ua)*(rad+.55));g.add(up)}
+      var spot=new THREE.SpotLight(0xfff0dc,1.8,14,.8,.6,1.0); spot.position.set(0,maxH+2.2,0); spot.target.position.set(0,0,0); g.add(spot); g.add(spot.target);
       spot.castShadow=true; spot.shadow.mapSize.set(1024,1024); spot.shadow.bias=-.0006; spot.shadow.radius=4; spot.shadow.camera.near=.5; spot.shadow.camera.far=8;
       var cap=new THREE.Group(); cap.userData.restY=0;
-      model={dev:g,cap:cap,hasCap:false,height:maxH,mid:maxH*1.0};
+      model={dev:g,cap:cap,hasCap:false,height:maxH,mid:maxH*.42};
       spin.add(g); g.position.y=-model.mid; shadow.visible=false;
-      camD=Math.max(7.0,(rad+.8)*3.9); capOn=false; capK=0; yaw=-.6; pitch=.24; auto=true; autoSpeed=.22; basePitch=.24;
+      camD=Math.max(7.2,(rad+.8)*3.9); capOn=false; capK=0; yaw=-.6; pitch=.3; auto=true; autoSpeed=.22; basePitch=.3;
     }
     function size(){var w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
     function loop(now){
@@ -316,7 +316,8 @@
       var ck=capK<.5?4*capK*capK*capK:1-Math.pow(-2*capK+2,3)/2;
       if(model){model.cap.visible=capK>.01;model.cap.position.y=model.cap.userData.restY+(1-ck)*.6;model.cap.rotation.y=(1-ck)*1.2}
       spin.rotation.y=yaw;pivot.rotation.x=pitch;
-      cam.position.set(0,.55+camD*.08,camD);cam.lookAt(0,-.04,0);
+      var cd=camD*(showroomMode?Math.max(1,1.6/cam.aspect):1);
+      cam.position.set(0,.55+cd*.08,cd);cam.lookAt(0,-.04,0);
       renderer.render(scene,cam);
       requestAnimationFrame(loop);
     }
