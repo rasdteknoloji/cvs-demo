@@ -817,3 +817,5 @@ nav a,.hdr-actions .btn,.logo .txt,.logo .sub,.lang>button{white-space:nowrap}
 .yt.on.loading .yt-btn svg{display:none}
 .yt.on.loading .yt-btn::after{content:'';width:34px;height:34px;border:3px solid rgba(255,255,255,.35);border-top-color:#fff;border-radius:50%;animation:ytspin .8s linear infinite}
 @keyframes ytspin{to{transform:rotate(360deg)}}
+/* giriş görseli: metin okunurluğu için sol-alt karartma */
+.hero .slide .bg::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(8,8,11,.86) 0%,rgba(8,8,11,.62) 42%,rgba(8,8,11,.18) 75%,rgba(8,8,11,.3) 100%),linear-gradient(180deg,rgba(8,8,11,.45) 0%,transparent 30%,transparent 55%,rgba(8,8,11,.9) 100%)}

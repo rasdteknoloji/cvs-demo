@@ -60,7 +60,7 @@ if(document.getElementById('playBtn'))document.getElementById('playBtn').addEven
       else{msg.className='form-msg err';msg.innerHTML='Das Formular konnte gerade nicht gesendet werden. Sie können Ihre Anfrage mit einem Klick per WhatsApp senden.<br><a href="'+wa+'" target="_blank" rel="noopener">Per WhatsApp senden →</a>'}
       msg.scrollIntoView({block:'nearest',behavior:'smooth'});
     }
-    fetch('/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:new URLSearchParams(fd).toString()})
+    fetch(f.getAttribute('data-post')||'/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-Requested-With':'XMLHttpRequest'},body:new URLSearchParams(fd).toString()})
       .then(function(r){done(r.ok)}).catch(function(){done(false)});
   });
 })();
