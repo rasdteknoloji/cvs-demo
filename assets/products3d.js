@@ -11,7 +11,11 @@
   var R=null;
   function engine(){
     if(R!==null) return R;
-    R=false;
+    R=createEngine(cvs,stage,capBtn,resetBtn);
+    return R;
+  }
+  function createEngine(cvs,stage,capBtn,resetBtn){
+    var R=false;
     if(typeof THREE==='undefined') return R;
     var renderer;
     try{renderer=new THREE.WebGLRenderer({canvas:cvs,antialias:true,alpha:true,powerPreference:'high-performance'})}catch(e){return R}
@@ -253,14 +257,36 @@
     var pivot=new THREE.Group(), spin=new THREE.Group(); scene.add(pivot); pivot.add(spin);
     var blob=tex(256,256,function(g,w,h){var gr=g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);gr.addColorStop(0,'rgba(0,0,0,.7)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,w,h)});
     var shadow=new THREE.Mesh(new THREE.PlaneGeometry(1.8,1.8),new THREE.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false,opacity:.5}));shadow.rotation.x=-Math.PI/2;scene.add(shadow);
-    var built={}, model=null, capOn=false, capK=0, yaw=-.6, pitch=.15, vy=0, vp=0, auto=true, dragging=false, lx=0, ly=0, idle=0, last=0, running=false, camD=5;
+    var built={}, model=null, capOn=false, capK=0, yaw=-.6, pitch=.15, vy=0, vp=0, auto=true, dragging=false, lx=0, ly=0, idle=0, last=0, running=false, camD=5, autoSpeed=.5, basePitch=.15;
     function show(i){
       if(model){spin.remove(model.dev)}
       if(!built[i]) built[i]=build(DATA[i].m);
       model=built[i]; spin.add(model.dev); model.dev.add(model.cap);
       model.dev.position.y=-model.mid; shadow.position.y=-model.height/2-.05;
       camD=Math.max(4.2,model.height*3.1); capOn=false; capK=0; yaw=-.6; pitch=.15; auto=true;
-      capBtn.hidden=!model.hasCap; capBtn.textContent='Kapağı tak'; capBtn.classList.remove('on');
+      if(capBtn){capBtn.hidden=!model.hasCap; capBtn.textContent='Kapağı tak'; capBtn.classList.remove('on');}
+    }
+    /* showroom: birden çok ürün döner tablada */
+    function showGroup(idxs){
+      if(model){spin.remove(model.dev)}
+      var g=new THREE.Group(), n=idxs.length, rad=1.15, maxH=0;
+      idxs.forEach(function(i,k){
+        if(!built[i]) built[i]=build(DATA[i].m);
+        var m=built[i], a=k/n*Math.PI*2-Math.PI/2, h=new THREE.Group();
+        m.dev.position.set(0,m.height/2-m.mid,0); m.dev.add(m.cap); m.cap.visible=false;
+        h.add(m.dev); h.position.set(Math.cos(a)*rad,0,Math.sin(a)*rad); h.rotation.y=-a; g.add(h);
+        var sh=new THREE.Mesh(new THREE.PlaneGeometry(1.1,1.1),new THREE.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false,opacity:.45}));
+        sh.rotation.x=-Math.PI/2; sh.position.set(h.position.x,.012,h.position.z); g.add(sh);
+        maxH=Math.max(maxH,m.height);
+      });
+      var disc=new THREE.Mesh(new THREE.CylinderGeometry(rad+.75,rad+.8,.09,96),new THREE.MeshStandardMaterial({color:0x101216,metalness:.6,roughness:.45}));
+      disc.position.y=-.045; g.add(disc);
+      var rim=new THREE.Mesh(new THREE.TorusGeometry(rad+.78,.012,12,120),new THREE.MeshStandardMaterial({color:0xd7232f,metalness:.3,roughness:.4,emissive:0x5a0a10,emissiveIntensity:.6}));
+      rim.rotation.x=Math.PI/2; rim.position.y=.005; g.add(rim);
+      var cap=new THREE.Group(); cap.userData.restY=0;
+      model={dev:g,cap:cap,hasCap:false,height:maxH,mid:maxH*.3};
+      spin.add(g); g.position.y=-model.mid; shadow.visible=false;
+      camD=Math.max(6.2,(rad+.8)*3.5); capOn=false; capK=0; yaw=-.6; pitch=.34; auto=true; autoSpeed=.22; basePitch=.34;
     }
     function size(){var w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
     function loop(now){
@@ -269,7 +295,7 @@
       if(!dragging){
         if(Math.abs(vy)>1e-4||Math.abs(vp)>1e-4){yaw+=vy;pitch=Math.max(-1.2,Math.min(1.2,pitch+vp));vy*=.92;vp*=.9}
         idle+=dt; if(!auto&&idle>2.2)auto=true;
-        if(auto){yaw-=.5*dt;pitch+=(.15-pitch)*.02}
+        if(auto){yaw-=autoSpeed*dt;pitch+=(basePitch-pitch)*.02}
       }
       var tk=capOn?1:0;if(capK!==tk)capK=tk>capK?Math.min(1,capK+dt*2.2):Math.max(0,capK-dt*2.2);
       var ck=capK<.5?4*capK*capK*capK:1-Math.pow(-2*capK+2,3)/2;
@@ -283,12 +309,22 @@
     function move(e){if(!dragging)return;var dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;vy=dx*.009;vp=dy*.007;yaw+=vy;pitch=Math.max(-1.2,Math.min(1.2,pitch+vp))}
     function up(){if(!dragging)return;dragging=false;idle=0;stage.classList.remove('grab')}
     cvs.addEventListener('pointerdown',down);cvs.addEventListener('pointermove',move);cvs.addEventListener('pointerup',up);cvs.addEventListener('pointercancel',up);cvs.addEventListener('lostpointercapture',up);
-    capBtn.addEventListener('click',function(){capOn=!capOn;capBtn.classList.toggle('on',capOn);capBtn.textContent=capOn?'Kapağı çıkar':'Kapağı tak'});
-    resetBtn.addEventListener('click',function(){yaw=-.6;pitch=.15;vy=vp=0;auto=true});
+    if(capBtn)capBtn.addEventListener('click',function(){capOn=!capOn;capBtn.classList.toggle('on',capOn);capBtn.textContent=capOn?'Kapağı çıkar':'Kapağı tak'});
+    if(resetBtn)resetBtn.addEventListener('click',function(){yaw=-.6;pitch=basePitch;vy=vp=0;auto=true});
     if(window.ResizeObserver)new ResizeObserver(size).observe(stage);else addEventListener('resize',size);
-    R={show:show,start:function(){if(running)return;running=true;last=0;size();requestAnimationFrame(loop)},stop:function(){running=false}};
+    R={show:show,showGroup:showGroup,start:function(){if(running)return;running=true;last=0;size();requestAnimationFrame(loop)},stop:function(){running=false}};
     return R;
   }
+
+  /* ---------- showroom (ürünler sayfası üstü) ---------- */
+  (function(){
+    var box=document.getElementById('showroom'); if(!box) return;
+    var c=box.querySelector('canvas'), E=createEngine(c,box,null,null); if(!E) {box.classList.add('no3d');return;}
+    var idx=[]; DATA.forEach(function(d,i){if(d.m&&idx.length<6)idx.push(i)});
+    E.showGroup(idx); box.__E=E;
+    var vis=true; if('IntersectionObserver' in window){new IntersectionObserver(function(es){vis=es[0].isIntersecting; vis?E.start():E.stop();},{threshold:.05}).observe(box);} else E.start();
+    document.addEventListener('visibilitychange',function(){if(document.hidden)E.stop();else if(vis)E.start();});
+  })();
 
   /* ---------- modal ---------- */
   function setView(v,k){
