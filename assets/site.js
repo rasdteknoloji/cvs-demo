@@ -116,7 +116,7 @@ if(document.getElementById('playBtn'))document.getElementById('playBtn').addEven
   var box=document.getElementById('holo'); if(!box) return;
   var img=box.querySelector('.holo-frame'), N=parseInt(box.getAttribute('data-frames'),10)||64, tpl=box.getAttribute('data-src');
   var src=function(i){return tpl.replace('{n}',('00'+i).slice(-3))};
-  var frames=[], loaded=0, cur=0, dir=1, auto=true, dragging=false, sx=0, sf=0, last=0, FPS=14;
+  var frames=[], loaded=0, cur=0, dir=1, auto=true, dragging=false, sx=0, sf=0, last=0, FPS=7;
   for(var i=0;i<N;i++){var im=new Image(); im.decoding='async'; im.src=src(i); im.onload=function(){loaded++}; frames.push(im);}
   function show(i){ i=((i%N)+N)%N; if(i===cur&&img.src.indexOf(src(i))>=0) return; cur=i; if(frames[i].complete&&frames[i].naturalWidth) img.src=frames[i].src; }
   function tick(t){
@@ -125,7 +125,7 @@ if(document.getElementById('playBtn'))document.getElementById('playBtn').addEven
   }
   requestAnimationFrame(tick);
   function start(x){dragging=true;sx=x;sf=cur;box.classList.add('drag')}
-  function move(x){ if(!dragging) return; var d=Math.round((x-sx)/6); show(sf-d); }
+  function move(x){ if(!dragging) return; var d=Math.round((x-sx)/10); show(sf-d); }
   function end(){ if(!dragging) return; dragging=false; box.classList.remove('drag'); clearTimeout(end.t); end.t=setTimeout(function(){auto=true},2500); }
   box.addEventListener('pointerdown',function(e){ if(e.button&&e.button!==0) return; auto=false; start(e.clientX); box.setPointerCapture&&box.setPointerCapture(e.pointerId); e.preventDefault(); });
   box.addEventListener('pointermove',function(e){ move(e.clientX); });
