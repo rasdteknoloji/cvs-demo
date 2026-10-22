@@ -283,10 +283,25 @@
       disc.position.y=-.045; g.add(disc);
       var rim=new THREE.Mesh(new THREE.TorusGeometry(rad+.78,.012,12,120),new THREE.MeshStandardMaterial({color:0xd7232f,metalness:.3,roughness:.4,emissive:0x5a0a10,emissiveIntensity:.6}));
       rim.rotation.x=Math.PI/2; rim.position.y=.005; g.add(rim);
+      /* gölgeler */
+      renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+      g.traverse(function(o){if(o.isMesh){o.castShadow=true;}}); disc.castShadow=false; disc.receiveShadow=true;
+      /* tavandan sarkan halka lamba (sıcak ışık) */
+      var lamp=new THREE.Group(); lamp.position.y=maxH+.62; g.add(lamp);
+      var glow=new THREE.MeshStandardMaterial({color:0xfff1d6,emissive:0xffc77a,emissiveIntensity:2.6,roughness:.4,metalness:.2});
+      var gold=new THREE.MeshStandardMaterial({color:0xc9a35a,metalness:.9,roughness:.3});
+      var r1=new THREE.Mesh(new THREE.TorusGeometry(.62,.022,12,96),glow); r1.rotation.x=Math.PI/2; lamp.add(r1);
+      var r2=new THREE.Mesh(new THREE.TorusGeometry(.44,.022,12,96),glow); r2.rotation.x=Math.PI/2-1.05; r2.rotation.y=.4; lamp.add(r2);
+      var r2b=new THREE.Mesh(new THREE.TorusGeometry(.44,.028,12,96),gold); r2b.rotation.copy(r2.rotation); r2b.position.y=-.01; lamp.add(r2b);
+      var canopy=new THREE.Mesh(new THREE.CylinderGeometry(.11,.11,.03,32),gold); canopy.position.y=1.0; lamp.add(canopy);
+      for(var ci=0;ci<4;ci++){var ca=ci/4*Math.PI*2+.4;var wire=new THREE.Mesh(new THREE.CylinderGeometry(.004,.004,.98,6),gold);wire.position.set(Math.cos(ca)*.3,.5,Math.sin(ca)*.3);lamp.add(wire)}
+      var lampLight=new THREE.PointLight(0xffd8a0,1.4,8,2); lampLight.position.y=.05; lamp.add(lampLight);
+      var spot=new THREE.SpotLight(0xffe4bf,2.6,12,.95,.6,1.1); spot.position.set(0,maxH+.6,0); spot.target.position.set(0,0,0); g.add(spot); g.add(spot.target);
+      spot.castShadow=true; spot.shadow.mapSize.set(1024,1024); spot.shadow.bias=-.0006; spot.shadow.radius=4; spot.shadow.camera.near=.5; spot.shadow.camera.far=8;
       var cap=new THREE.Group(); cap.userData.restY=0;
-      model={dev:g,cap:cap,hasCap:false,height:maxH,mid:maxH*.3};
+      model={dev:g,cap:cap,hasCap:false,height:maxH,mid:maxH*1.0};
       spin.add(g); g.position.y=-model.mid; shadow.visible=false;
-      camD=Math.max(6.2,(rad+.8)*3.5); capOn=false; capK=0; yaw=-.6; pitch=.34; auto=true; autoSpeed=.22; basePitch=.34;
+      camD=Math.max(7.0,(rad+.8)*3.9); capOn=false; capK=0; yaw=-.6; pitch=.24; auto=true; autoSpeed=.22; basePitch=.24;
     }
     function size(){var w=stage.clientWidth,h=stage.clientHeight;if(!w||!h)return;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix()}
     function loop(now){
@@ -320,7 +335,7 @@
   (function(){
     var box=document.getElementById('showroom'); if(!box) return;
     var c=box.querySelector('canvas'), E=createEngine(c,box,null,null); if(!E) {box.classList.add('no3d');return;}
-    var idx=[]; DATA.forEach(function(d,i){if(d.m&&idx.length<6)idx.push(i)});
+    var idx=[]; DATA.forEach(function(d,i){if(d.m&&!d.m.ptfe&&idx.length<6)idx.push(i)});
     E.showGroup(idx); box.__E=E;
     var vis=true; if('IntersectionObserver' in window){new IntersectionObserver(function(es){vis=es[0].isIntersecting; vis?E.start():E.stop();},{threshold:.05}).observe(box);} else E.start();
     document.addEventListener('visibilitychange',function(){if(document.hidden)E.stop();else if(vis)E.start();});
