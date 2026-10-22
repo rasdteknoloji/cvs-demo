@@ -53,7 +53,7 @@ if(document.getElementById('playBtn'))document.getElementById('playBtn').addEven
     var fd=new FormData(f), ad=(fd.get('ad')||'').trim();
     btn.disabled=true; btn.textContent='Gönderiliyor…'; msg.className='form-msg'; msg.innerHTML='';
     var txt='Merhaba, CVS yakıt koruma için teklif almak istiyorum.\nAd Soyad: '+ad+'\nFirma: '+(fd.get('firma')||'-')+'\nAraç tipi: '+fd.get('arac_tipi')+'\nAraç sayısı: '+(fd.get('arac_sayisi')||'-')+'\nTelefon: '+fd.get('telefon');
-    var wa='https://wa.me/905323978397?text='+encodeURIComponent(txt);
+    var wa='https://wa.me/905050509944?text='+encodeURIComponent(txt);
     function done(ok){
       btn.disabled=false; btn.textContent=label;
       if(ok){msg.className='form-msg ok';msg.innerHTML='<b>Teşekkürler'+(ad?' '+esc(ad.split(' ')[0]):'')+'!</b> Talebiniz bize ulaştı. En kısa sürede '+esc(fd.get('telefon'))+' numarasından size dönüş yapacağız.';f.reset()}
@@ -109,4 +109,27 @@ if(document.getElementById('playBtn'))document.getElementById('playBtn').addEven
   });
   /* boşta kalınca da ön bağlantı */
   if('requestIdleCallback' in window) requestIdleCallback(preconnect,{timeout:4000}); else setTimeout(preconnect,3000);
+})();
+
+/* ---------- 3D HOLOGRAM: kare dizisi, sürükle-çevir + otomatik dönüş ---------- */
+(function(){
+  var box=document.getElementById('holo'); if(!box) return;
+  var img=box.querySelector('.holo-frame'), N=parseInt(box.getAttribute('data-frames'),10)||64, tpl=box.getAttribute('data-src');
+  var src=function(i){return tpl.replace('{n}',('00'+i).slice(-3))};
+  var frames=[], loaded=0, cur=0, dir=1, auto=true, dragging=false, sx=0, sf=0, last=0, FPS=14;
+  for(var i=0;i<N;i++){var im=new Image(); im.decoding='async'; im.src=src(i); im.onload=function(){loaded++}; frames.push(im);}
+  function show(i){ i=((i%N)+N)%N; if(i===cur&&img.src.indexOf(src(i))>=0) return; cur=i; if(frames[i].complete&&frames[i].naturalWidth) img.src=frames[i].src; }
+  function tick(t){
+    if(auto&&!dragging&&t-last>1000/FPS){ last=t; var n=cur+dir; if(n>=N-1||n<=0) dir=-dir; show(n); }
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+  function start(x){dragging=true;sx=x;sf=cur;box.classList.add('drag')}
+  function move(x){ if(!dragging) return; var d=Math.round((x-sx)/6); show(sf-d); }
+  function end(){ if(!dragging) return; dragging=false; box.classList.remove('drag'); clearTimeout(end.t); end.t=setTimeout(function(){auto=true},2500); }
+  box.addEventListener('pointerdown',function(e){ if(e.button&&e.button!==0) return; auto=false; start(e.clientX); box.setPointerCapture&&box.setPointerCapture(e.pointerId); e.preventDefault(); });
+  box.addEventListener('pointermove',function(e){ move(e.clientX); });
+  box.addEventListener('pointerup',end); box.addEventListener('pointercancel',end); box.addEventListener('lostpointercapture',end);
+  /* görünür değilken dur */
+  if('IntersectionObserver' in window){ new IntersectionObserver(function(es){ auto=es[0].isIntersecting; },{threshold:.1}).observe(box); }
 })();

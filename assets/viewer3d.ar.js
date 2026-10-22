@@ -131,7 +131,7 @@
   cvs.addEventListener('pointerdown',down);cvs.addEventListener('pointermove',move);
   cvs.addEventListener('pointerup',up);cvs.addEventListener('pointercancel',up);cvs.addEventListener('lostpointercapture',up);
   var bCap=box.querySelector('[data-v="cap"]'),bSpin=box.querySelector('[data-v="spin"]'),bReset=box.querySelector('[data-v="reset"]');
-  if(bCap)bCap.addEventListener('click',function(){capOn=!capOn;bCap.classList.toggle('on',capOn);bCap.textContent=capOn?'إزالة الغطاء':'تركيب الغطاء المقفل';dirty=true});
+  if(bCap)bCap.addEventListener('click',function(){capOn=!capOn;bCap.classList.toggle('on',capOn);bCap.textContent=capOn?'إزالة الغطاء':'تركيب الغطاء';dirty=true});
   if(bSpin)bSpin.addEventListener('click',function(){spinOn=!spinOn;bSpin.classList.toggle('on',!spinOn);bSpin.textContent=spinOn?'إيقاف':'تدوير';auto=spinOn;dirty=true});
   if(bReset)bReset.addEventListener('click',function(){yaw=-.6;pitch=.12;vy=vp=0;auto=spinOn;dirty=true});
   if('IntersectionObserver' in window)new IntersectionObserver(function(es){visible=es[0].isIntersecting;if(visible)requestAnimationFrame(loop)}).observe(box);
