@@ -40,49 +40,54 @@
   var steel=new THREE.MeshStandardMaterial({color:0xf3f5f8,map:brushed,metalness:.95,roughness:.22});
   var rubber=new THREE.MeshStandardMaterial({color:0x0a0a0c,roughness:.7,metalness:0,envMapIntensity:.25});
 
-  var RB=.30,HB=.86,GAS=.06,NK=.07,BODY0=-(GAS+NK),CR=.493,CH=.42;
+  /* ---- Ölçüler (fotoğraftaki siyah kapaklı model; bilezik çapı = 1 birim) ---- */
+  var RB=.27,HB=.72,GAS=.05,NK=.035,BODY0=-(GAS+NK),CR=.493,CH=.27;
   var pivot=new THREE.Group(), spin=new THREE.Group(), dev=new THREE.Group();
   scene.add(pivot);pivot.add(spin);spin.add(dev);
-  var MID=(CH+(BODY0-HB))/2; dev.position.y=-MID;
+  var MID=(CH+.18+(BODY0-HB))/2; dev.position.y=-MID;
+  var alu=new THREE.MeshStandardMaterial({color:0xeef1f5,map:brushed,metalness:.92,roughness:.26});
+  var aluDark=new THREE.MeshStandardMaterial({color:0x2a2d33,metalness:.55,roughness:.6,side:THREE.BackSide});
 
-  /* gövde: şaşırtmalı yuvarlak delikler + altta dikey yarıklar (fotoğraftaki model) */
+  /* gövde: 6 sıra, sıra başına 4 uzun yatay yuva (stadyum), sıralar yarım adım kaydırmalı */
   var sw=2048,sh=Math.round(2048*HB/(2*Math.PI*RB));
   var holes=tex(sw,sh,function(g,w,h){
     g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#000';
-    var cols=12,rows=6,top=h*.05,bot=h*.24,rowH=(h-top-bot)/rows,colW=w/cols,r=Math.min(colW*.27,rowH*.36);
-    for(var y=0;y<rows;y++)for(var x=0;x<cols;x++){var cx=x*colW+colW/2+(y%2?colW/2:0),cy=top+y*rowH+rowH/2;[cx,cx-w].forEach(function(xx){g.beginPath();g.arc(xx,cy,r,0,7);g.fill()})}
-    var sy=h-bot+h*.05,sl=bot-h*.11,swd=colW*.34;
-    for(var x2=0;x2<cols;x2++){var sx=x2*colW+colW/2-swd/2+colW/4;[sx,sx-w].forEach(function(xx){rr(g,xx,sy,swd,sl,swd/2);g.fill()})}
+    var rows=6,per=4,top=h*.09,bot=h*.11,rowH=(h-top-bot)/rows,slotH=rowH*.5,arc=w/per,slotW=arc*.72;
+    for(var y=0;y<rows;y++){var cy=top+y*rowH+rowH/2,off=(y%2)?arc/2:0;
+      for(var x=0;x<per;x++){var cx=x*arc+arc/2+off;[cx,cx-w,cx+w].forEach(function(xx){rr(g,xx-slotW/2,cy-slotH/2,slotW,slotH,slotH/2);g.fill()})}}
   });
-  var body=new THREE.Mesh(new THREE.CylinderGeometry(RB,RB,HB,160,1,true),new THREE.MeshStandardMaterial({color:0xf0f2f5,map:brushed,alphaMap:holes,alphaTest:.5,metalness:.94,roughness:.24,side:THREE.DoubleSide}));
+  var body=new THREE.Mesh(new THREE.CylinderGeometry(RB,RB,HB,192,1,true),new THREE.MeshStandardMaterial({color:0xeef1f5,map:brushed,alphaMap:holes,alphaTest:.5,metalness:.92,roughness:.26,side:THREE.DoubleSide}));
   body.position.y=BODY0-HB/2;dev.add(body);
-  var bodyIn=new THREE.Mesh(new THREE.CylinderGeometry(RB-.01,RB-.01,HB,160,1,true),new THREE.MeshStandardMaterial({color:0x2c3036,metalness:.6,roughness:.55,side:THREE.BackSide,alphaMap:holes,alphaTest:.5}));
+  /* et kalınlığı: iç yüzey (koyu) + yuva kenarlarını belli eden ikinci kabuk */
+  var bodyIn=new THREE.Mesh(new THREE.CylinderGeometry(RB-.018,RB-.018,HB,192,1,true),new THREE.MeshStandardMaterial({color:0x33373d,metalness:.6,roughness:.55,side:THREE.BackSide,alphaMap:holes,alphaTest:.5}));
   bodyIn.position.y=BODY0-HB/2;dev.add(bodyIn);
-  var core=new THREE.Mesh(new THREE.CylinderGeometry(RB*.55,RB*.55,HB*.92,48),new THREE.MeshStandardMaterial({color:0x0e0f12,roughness:.9,metalness:0}));
-  core.position.y=BODY0-HB/2;dev.add(core);
-  var baseHoles=tex(1024,1024,function(g,w,h){g.fillStyle='#fff';g.fillRect(0,0,w,h);g.fillStyle='#000';var R=w/2;
-    for(var k=0;k<12;k++){var a=k/12*Math.PI*2;g.beginPath();g.arc(R+Math.cos(a)*R*.66,R+Math.sin(a)*R*.66,R*.085,0,7);g.fill()}
-    for(var k2=0;k2<7;k2++){var a2=k2/7*Math.PI*2;g.beginPath();g.arc(R+Math.cos(a2)*R*.33,R+Math.sin(a2)*R*.33,R*.075,0,7);g.fill()}
-    g.beginPath();g.arc(R,R,R*.07,0,7);g.fill()});
-  var base=new THREE.Mesh(new THREE.CircleGeometry(RB,96),new THREE.MeshStandardMaterial({color:0xe2e6eb,map:brushed,alphaMap:baseHoles,alphaTest:.5,metalness:.95,roughness:.28,side:THREE.DoubleSide}));
-  base.rotation.x=Math.PI/2;base.position.y=BODY0-HB+.01;dev.add(base);
-  var rim=new THREE.Mesh(new THREE.TorusGeometry(RB,.014,12,128),steel);rim.rotation.x=Math.PI/2;rim.position.y=BODY0-HB;dev.add(rim);
+  var core=new THREE.Mesh(new THREE.CylinderGeometry(RB*.62,RB*.62,HB*.9,48),new THREE.MeshStandardMaterial({color:0x111318,roughness:.9,metalness:0}));
+  core.position.y=BODY0-HB/2-.02;dev.add(core);
+  /* taban: kapalı işlenmiş disk */
+  var base=new THREE.Mesh(new THREE.CircleGeometry(RB,96),new THREE.MeshStandardMaterial({color:0xdfe3e8,map:brushed,metalness:.9,roughness:.32,side:THREE.DoubleSide}));
+  base.rotation.x=Math.PI/2;base.position.y=BODY0-HB+.004;dev.add(base);
+  var rim=new THREE.Mesh(new THREE.TorusGeometry(RB-.006,.008,10,128),alu);rim.rotation.x=Math.PI/2;rim.position.y=BODY0-HB+.004;dev.add(rim);
 
-  /* boyun + conta + bilezik */
-  ringBand(.30,.352,BODY0,-GAS,steel,dev);
-  for(var i=0;i<3;i++){var a=i/3*Math.PI*2+.4;var sc=new THREE.Mesh(new THREE.CircleGeometry(.013,20),new THREE.MeshStandardMaterial({color:0x15161a,metalness:.4,roughness:.5}));sc.position.set(Math.cos(a)*.3535,-GAS-NK/2,Math.sin(a)*.3535);sc.lookAt(Math.cos(a)*2,-GAS-NK/2,Math.sin(a)*2);dev.add(sc)}
-  ringBand(.33,.462,-GAS,0,rubber,dev);
-  ringBand(.40,CR,0,CH-.02,steel,dev);
-  var cham=new THREE.Mesh(new THREE.CylinderGeometry(CR-.022,CR,.02,160,1,true),steel);cham.position.y=CH-.01;dev.add(cham);
-  var topR=new THREE.Mesh(new THREE.RingGeometry(.40,CR-.022,160),steel);topR.rotation.x=-Math.PI/2;topR.position.y=CH;dev.add(topR);
-  [0,Math.PI].forEach(function(a){var n=new THREE.Mesh(new THREE.BoxGeometry(.11,.05,.035),new THREE.MeshStandardMaterial({color:0x1c1d20}));n.position.set(Math.cos(a)*.405,CH-.03,Math.sin(a)*.405);n.lookAt(0,CH-.03,0);dev.add(n)});
-  var grooveMat=new THREE.MeshStandardMaterial({color:0x8e949d,metalness:.9,roughness:.35});
-  [.035,CH-.07].forEach(function(y){var gr=new THREE.Mesh(new THREE.TorusGeometry(CR+.001,.0045,8,160),grooveMat);gr.rotation.x=Math.PI/2;gr.position.y=y;dev.add(gr)});
+  /* boyun + conta (siyah kauçuk) + bilezik */
+  ringBand(RB-.002,RB+.04,BODY0,-GAS,alu,dev);
+  var sc=new THREE.Mesh(new THREE.CircleGeometry(.012,20),new THREE.MeshStandardMaterial({color:0x15161a,metalness:.4,roughness:.5}));sc.position.set(0,-GAS-NK/2,RB+.0405);dev.add(sc);
+  ringBand(.33,.455,-GAS,.005,rubber,dev);
+  /* bilezik: iki kademeli; alt kademe daha geniş, üst kademe hafif dar; üst kenar pah */
+  ringBand(.40,CR,0,CH*.62,alu,dev);
+  var gro=new THREE.Mesh(new THREE.TorusGeometry(CR-.004,.005,8,192),new THREE.MeshStandardMaterial({color:0x7d838c,metalness:.9,roughness:.4}));gro.rotation.x=Math.PI/2;gro.position.y=CH*.62;dev.add(gro);
+  ringBand(.40,CR-.012,CH*.62,CH-.02,alu,dev);
+  var cham=new THREE.Mesh(new THREE.CylinderGeometry(CR-.034,CR-.012,.02,192,1,true),alu);cham.position.y=CH-.01;dev.add(cham);
+  var topR=new THREE.Mesh(new THREE.RingGeometry(.40,CR-.034,192),alu);topR.rotation.x=-Math.PI/2;topR.position.y=CH;dev.add(topR);
+  /* iç delik: kademeli; ağızda kama yuvası, derinde koyu iç yüzey ve alt bilezik */
+  var bore=new THREE.Mesh(new THREE.CylinderGeometry(.40,.40,CH+GAS+NK,128,1,true),new THREE.MeshStandardMaterial({color:0x9ea4ad,metalness:.85,roughness:.4,side:THREE.BackSide}));bore.position.y=(CH-(GAS+NK))/2;dev.add(bore);
+  var ledge=new THREE.Mesh(new THREE.RingGeometry(RB-.01,.40,128),new THREE.MeshStandardMaterial({color:0x5a5f66,metalness:.7,roughness:.5}));ledge.rotation.x=-Math.PI/2;ledge.position.y=CH*.35;dev.add(ledge);
+  var lowBore=new THREE.Mesh(new THREE.CylinderGeometry(RB-.01,RB-.01,CH*.35+GAS+NK,96,1,true),aluDark);lowBore.position.y=(CH*.35-(GAS+NK))/2;dev.add(lowBore);
+  var key=new THREE.Mesh(new THREE.BoxGeometry(.06,.07,.03),new THREE.MeshStandardMaterial({color:0x5f656d,metalness:.8,roughness:.45}));key.position.set(0,CH-.03,-.405);dev.add(key);
 
   /* bilezik baskısı: metal üstüne doğrudan, şeffaf zemin, 4096 px */
   var printTex=tex(4096,300,function(g,w,h){
     g.clearRect(0,0,w,h);var seg=w/2,F="Arial, Helvetica, 'Liberation Sans', sans-serif";
-    function W(sc){g.font='600 '+116*sc+'px '+F;var a=g.measureText('www.').width,c=g.measureText('yakitkoruma.com').width;g.font='900 '+176*sc+'px '+F;var b=g.measureText('CVS').width+6*sc;g.font='700 '+112*sc+'px '+F;return [a,b,c,g.measureText('0532 397 83 97').width,110*sc]}
+    function W(sc){g.font='600 '+116*sc+'px '+F;var a=g.measureText('www.').width,c=g.measureText('yakitkoruma.com').width;g.font='900 '+176*sc+'px '+F;var b=g.measureText('CVS').width+6*sc;g.font='700 '+112*sc+'px '+F;return [a,b,c,g.measureText('0532 397 83 97').width,g.measureText('  ').width]}
     var sc=1,ws=W(1),tot=ws[0]+ws[1]+ws[2]+ws[3]+ws[4];if(tot>seg*.9){sc=seg*.9/tot;ws=W(sc);tot=ws[0]+ws[1]+ws[2]+ws[3]+ws[4]}
     for(var k=0;k<2;k++){
       var x=k*seg+(seg-tot)/2,y=h*.66;
@@ -92,35 +97,38 @@
       g.font='700 '+112*sc+'px '+F;g.fillStyle='#c8102e';g.fillText('0532 397 83 97',x,y);
     }
   },true);
-  var print=new THREE.Mesh(new THREE.CylinderGeometry(CR+.0015,CR+.0015,.22,192,1,true),new THREE.MeshStandardMaterial({map:printTex,transparent:true,roughness:.45,metalness:.1,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));
-  print.position.y=.19;dev.add(print);
+  var print=new THREE.Mesh(new THREE.CylinderGeometry(CR+.0015,CR+.0015,.13,192,1,true),new THREE.MeshStandardMaterial({map:printTex,transparent:true,roughness:.45,metalness:.1,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2}));
+  print.position.y=CH*.31;dev.add(print);
 
-  /* üstte siyah kauçuk klape (kapaksız hali) */
-  var flapG=new THREE.Group();flapG.position.y=CH-.06;dev.add(flapG);
-  var seat=new THREE.Mesh(new THREE.CylinderGeometry(.40,.40,.04,96),rubber);seat.position.y=-.02;flapG.add(seat);
-  var fs=new THREE.Shape();(function(){var w=.44,h=.34,r=.06,x=-w/2,y=-h/2;fs.moveTo(x+r,y);fs.lineTo(x+w-r,y);fs.quadraticCurveTo(x+w,y,x+w,y+r);fs.lineTo(x+w,y+h-r);fs.quadraticCurveTo(x+w,y+h,x+w-r,y+h);fs.lineTo(x+r,y+h);fs.quadraticCurveTo(x,y+h,x,y+h-r);fs.lineTo(x,y+r);fs.quadraticCurveTo(x,y,x+r,y)})();
-  var flapGeo=new THREE.ExtrudeGeometry(fs,{depth:.05,bevelEnabled:true,bevelThickness:.012,bevelSize:.012,bevelSegments:4,curveSegments:16});flapGeo.translate(0,0,-.025);
-  var flap=new THREE.Mesh(flapGeo,new THREE.MeshStandardMaterial({color:0x050506,roughness:.8,metalness:0,envMapIntensity:.12}));
-  flap.rotation.x=-Math.PI/2+.32;flap.position.set(0,.06,.02);flapG.add(flap);
+  /* kapaksız hali: klape yok (fotoğraftaki model açık ağızlı) */
+  var flapG=new THREE.Group();dev.add(flapG);
 
-  /* kilitli kapak (isteğe bağlı) */
+  /* siyah beş loblu plastik kapak + menteşeli anahtar kapağı */
   var cap=new THREE.Group();cap.visible=false;dev.add(cap);
-  var ribs=tex(2048,64,function(g,w,h){g.fillStyle='#808080';g.fillRect(0,0,w,h);var y0=Math.round(h*.64),y1=Math.round(h*.86);for(var x=0;x<w;x+=16){g.fillStyle='#262626';g.fillRect(x,y0,7,y1-y0)}});
-  var prof=[[.33,0],[.49,0],[.503,.015],[.503,.13],[.49,.165],[.45,.19],[.35,.208],[.12,.215],[.001,.215]].map(function(p){return new THREE.Vector2(p[0],p[1])});
-  cap.add(new THREE.Mesh(new THREE.LatheGeometry(prof,128),new THREE.MeshStandardMaterial({color:0x060607,roughness:.32,metalness:.05,envMapIntensity:.3,bumpMap:ribs,bumpScale:.01})));
-  var boss=new THREE.Mesh(new THREE.CylinderGeometry(.088,.095,.045,64),new THREE.MeshStandardMaterial({color:0xd9dde3,metalness:1,roughness:.18}));boss.position.y=.237;cap.add(boss);
-  var kg=new THREE.Group();kg.position.y=.26;cap.add(kg);
-  var blade=new THREE.Mesh(new THREE.BoxGeometry(.05,.07,.012),new THREE.MeshStandardMaterial({color:0xcfd3d9,metalness:1,roughness:.2}));blade.position.y=.035;kg.add(blade);
-  var kh=new THREE.Shape();(function(){var w=.15,h=.16,r=.05,x=-w/2,y=0;kh.moveTo(x+r,y);kh.lineTo(x+w-r,y);kh.quadraticCurveTo(x+w,y,x+w,y+r);kh.lineTo(x+w,y+h-r);kh.quadraticCurveTo(x+w,y+h,x+w-r,y+h);kh.lineTo(x+r,y+h);kh.quadraticCurveTo(x,y+h,x,y+h-r);kh.lineTo(x,y+r);kh.quadraticCurveTo(x,y,x+r,y);var hp=new THREE.Path();hp.absarc(0,h-.042,.019,0,Math.PI*2,true);kh.holes.push(hp)})();
-  var hg=new THREE.ExtrudeGeometry(kh,{depth:.03,bevelEnabled:true,bevelThickness:.008,bevelSize:.008,bevelSegments:3,curveSegments:16});hg.translate(0,0,-.015);hg.scale(1.15,1.15,1);
-  var head=new THREE.Mesh(hg,new THREE.MeshStandardMaterial({color:0x050506,roughness:.35,metalness:.05,envMapIntensity:.3}));head.position.y=.065;kg.add(head);
+  var plastic=new THREE.MeshStandardMaterial({color:0x0b0b0d,roughness:.78,metalness:0,envMapIntensity:.25});
+  var plasticSoft=new THREE.MeshStandardMaterial({color:0x141416,roughness:.6,metalness:0,envMapIntensity:.3});
+  var lobe=new THREE.Shape();(function(){var N=180;for(var i=0;i<=N;i++){var t=i/N*Math.PI*2,c=Math.cos(5*t),r=.41+.16*Math.pow(Math.max(0,c),.5)-.015*Math.pow(Math.max(0,-c),2);var x=Math.cos(t)*r,y=Math.sin(t)*r;i?lobe.lineTo(x,y):lobe.moveTo(x,y)}lobe.closePath()})();
+  var capGeo=new THREE.ExtrudeGeometry(lobe,{depth:.24,bevelEnabled:true,bevelThickness:.05,bevelSize:.04,bevelSegments:6,curveSegments:24});capGeo.rotateX(-Math.PI/2);capGeo.translate(0,.05,0);
+  cap.add(new THREE.Mesh(capGeo,plastic));
+  /* lob araları: üstte beş oluk */
+  for(var li=0;li<5;li++){var la=li/5*Math.PI*2+Math.PI/5;var grv=new THREE.Mesh(new THREE.BoxGeometry(.05,.03,.22),plasticSoft);grv.position.set(Math.cos(la)*.3,.335,Math.sin(la)*.3);grv.rotation.y=-la+Math.PI/2;cap.add(grv)}
+  /* orta göbek + menteşeli anahtar kapağı */
+  var hub=new THREE.Mesh(new THREE.CylinderGeometry(.2,.23,.06,64),plastic);hub.position.y=.35;cap.add(hub);
+  for(var ri=0;ri<5;ri++){var ra=ri/5*Math.PI*2;var ridge=new THREE.Mesh(new THREE.BoxGeometry(.3,.025,.07),plastic);ridge.position.set(Math.cos(ra)*.34,.34,Math.sin(ra)*.34);ridge.rotation.y=-ra;cap.add(ridge)}
+  var kc=new THREE.Shape();(function(){var w=.22,h=.16,r=.05,x=-w/2,y=-h/2;kc.moveTo(x+r,y);kc.lineTo(x+w-r,y);kc.quadraticCurveTo(x+w,y,x+w,y+r);kc.lineTo(x+w,y+h-r);kc.quadraticCurveTo(x+w,y+h,x+w-r,y+h);kc.lineTo(x+r,y+h);kc.quadraticCurveTo(x,y+h,x,y+h-r);kc.lineTo(x,y+r);kc.quadraticCurveTo(x,y,x+r,y)})();
+  var kcGeo=new THREE.ExtrudeGeometry(kc,{depth:.035,bevelEnabled:true,bevelThickness:.008,bevelSize:.008,bevelSegments:3,curveSegments:12});kcGeo.rotateX(-Math.PI/2);
+  var kcover=new THREE.Mesh(kcGeo,plasticSoft);kcover.position.set(.02,.37,0);kcover.rotation.y=.35;kcover.rotation.z=.06;cap.add(kcover);
+  var hinge=new THREE.Mesh(new THREE.CylinderGeometry(.018,.018,.17,16),plasticSoft);hinge.rotation.z=Math.PI/2;hinge.rotation.y=.35;hinge.position.set(-.09,.375,-.03);cap.add(hinge);
+  var kg=new THREE.Group();cap.add(kg);  /* animasyon uyumluluğu için boş grup */
+  var capBottom=new THREE.Mesh(new THREE.RingGeometry(.36,.50,96),plastic);capBottom.rotation.x=Math.PI/2;capBottom.position.y=.052;cap.add(capBottom);
+  var capSkirt=new THREE.Mesh(new THREE.CylinderGeometry(.36,.36,.06,96,1,true),new THREE.MeshStandardMaterial({color:0x0b0b0d,roughness:.8,side:THREE.BackSide}));capSkirt.position.y=.08;cap.add(capSkirt);
 
   /* zemin gölgesi */
   var blob=tex(256,256,function(g,w,h){var gr=g.createRadialGradient(w/2,h/2,0,w/2,h/2,w/2);gr.addColorStop(0,'rgba(0,0,0,.7)');gr.addColorStop(1,'rgba(0,0,0,0)');g.fillStyle=gr;g.fillRect(0,0,w,h)});
   var shadow=new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.6),new THREE.MeshBasicMaterial({map:blob,transparent:true,depthWrite:false,opacity:.55}));
-  shadow.rotation.x=-Math.PI/2;shadow.position.y=-.92;scene.add(shadow);
+  shadow.rotation.x=-Math.PI/2;shadow.position.y=-.86;scene.add(shadow);
 
-  cam.position.set(0,.62,5.05);cam.lookAt(0,-.04,0);
+  cam.position.set(0,.62,4.9);cam.lookAt(0,-.04,0);
 
   /* etkileşim */
   var yaw=-.6,pitch=.12,vy=0,vp=0,auto=true,dragging=false,lastX=0,lastY=0,idle=0,dirty=true,capK=0,capOn=false,last=0,visible=true,spinOn=true;
@@ -147,13 +155,14 @@
       if(auto){yaw+=SPEED*dt;pitch+=(.12-pitch)*.02;dirty=true}
     }
     var tk=capOn?1:0;if(capK!==tk){capK=tk>capK?Math.min(1,capK+dt*2.2):Math.max(0,capK-dt*2.2);dirty=true}var ck=capK<.5?4*capK*capK*capK:1-Math.pow(-2*capK+2,3)/2;
-    cap.visible=capK>.01;cap.position.y=CH+.012+(1-ck)*.6;cap.rotation.y=(1-ck)*1.2;
+    cap.visible=capK>.01;cap.position.y=CH-.05+(1-ck)*.6;cap.rotation.y=(1-ck)*1.2;
     flapG.visible=ck<.9;
-    cam.position.set(0,.62+.12*ck,5.05+.75*ck);cam.lookAt(0,-.04+.12*ck,0);
+    cam.position.set(0,.62+.12*ck,4.9+.6*ck);cam.lookAt(0,-.04+.12*ck,0);
     spin.rotation.y=yaw;pivot.rotation.x=pitch;
     shadow.material.opacity=.55*(1-Math.min(1,Math.abs(pitch)*.6));
     if(dirty){renderer.render(scene,cam);dirty=false;box.classList.add('ready')}
     requestAnimationFrame(loop);
   }
+  box.__v={set:function(y,pt,c){yaw=y;pitch=pt;capOn=!!c;capK=c?1:0;auto=false;spinOn=false;dirty=true}};
   requestAnimationFrame(loop);
 })();
